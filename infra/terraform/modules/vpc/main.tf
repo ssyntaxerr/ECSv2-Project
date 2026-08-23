@@ -26,3 +26,18 @@ resource "aws_subnet" "priv-subnet" {
         Tier = "private"
     })
 }
+
+resource "aws_route_table" "priv-rt" {
+    vpc_id = aws_vpc.ecsv2-vpc
+
+    tags = merge(var.common_tags, {
+    Name = "${var.name_prefix}-private-rt"
+    Tier = "private"
+  })
+}
+
+resource "aws_route_table_association" "priv-rt-assoc" {
+    for_each = aws_subnet.priv-subnet
+    subnet_id = each.value.id
+    route_table_id = aws_route_table.priv-rt.id
+}
