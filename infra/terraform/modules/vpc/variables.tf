@@ -17,3 +17,7 @@ variable "availability_zones" {
 variable "private_subnet_cidrs" {
     type = list(string)
 }
+
+variable "aws_region" {
+    type = string
+}

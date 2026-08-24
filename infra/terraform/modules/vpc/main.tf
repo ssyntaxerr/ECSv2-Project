@@ -41,3 +41,18 @@ resource "aws_route_table_association" "priv-rt-assoc" {
     subnet_id = each.value.id
     route_table_id = aws_route_table.priv-rt.id
 }
+
+resource "aws_vpc_endpoint" "s3_endpoint" {
+    vpc_id = aws_vpc.ecsv2-vpc
+    service_name = "com.amazonaws.${var.aws_region}.s3"
+    
+    vpc_endpoint_type = "Gateway"
+
+    route_table_ids = [
+        aws_route_table.priv-rt.id
+    ]
+
+    tags = merge(var.common_tags, {
+        Name = "${var.name_prefix}-s3-endpoint"
+    })
+}
