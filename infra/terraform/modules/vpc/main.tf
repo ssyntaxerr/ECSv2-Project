@@ -56,3 +56,33 @@ resource "aws_vpc_endpoint" "s3_endpoint" {
         Name = "${var.name_prefix}-s3-endpoint"
     })
 }
+
+locals {
+    interface_endpoint_services = [
+        "ecr.api",
+        "ecr.dkr",
+        "logs",
+        "sqs",
+    ]
+}
+
+resource "aws_vpc_endpoint" "interface" {
+    for_each = toset(local.interface_endpoint_services)
+
+    vpc_id = aws_vpc.ecsv2-vpc
+    service_name = "com.amazonaws.${var.aws_region}.${each.value}"
+    vpc_endpoint_type = "Interface"
+    private_dns_enabled = true
+
+    subnet_ids = [
+        for subnet in aws_subnet.priv-subnet : subnet.id
+    ]
+
+    security_group_ids = [
+        aws_security_group.vpc_endpoints.id
+    ]
+
+    tags = merge(var.common_tags, {
+        Name = "${var.name_prefix}-${each.value}-endpoint"
+    })
+}
