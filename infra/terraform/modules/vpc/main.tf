@@ -86,3 +86,29 @@ resource "aws_vpc_endpoint" "interface" {
         Name = "${var.name_prefix}-${each.value}-endpoint"
     })
 }
+
+resource "aws_security_group" "vpc_endpoints" {
+  name        = "${var.name_prefix}-vpc-endpoints"
+  description = "Allow HTTPS traffic to VPC endpoints"
+  vpc_id      = aws_vpc.ecsv2-vpc
+
+  ingress {
+    description = "HTTPS from VPC"
+    from_port   = 443
+    to_port     = 443
+    protocol    = "tcp"
+    cidr_blocks = [var.vpc_cidr]
+  }
+
+  egress {
+    description = "Allow outbound traffic"
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  tags = merge(var.common_tags, {
+    Name = "${var.name_prefix}-vpc-endpoints-sg"
+  })
+}
