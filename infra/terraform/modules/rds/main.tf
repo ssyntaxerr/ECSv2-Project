@@ -31,3 +31,35 @@ resource "aws_security_group" "postgres_sg" {
     Name = "${var.name_prefix}-postgres-sg"
   })
 }
+
+resource "aws_db_instance" "postgres" {
+  identifier = "${var.name_prefix}-postgres"
+
+  engine = "postgres"
+  engine_version = "16"
+
+  instance_class = "db.t4g.micro"
+  allocated_storage = 20
+  max_allocated_storage = 100
+  storage_type = "gp3"
+  storage_encrypted = true
+
+  db_name = "urlshortenerdb"
+  username = "postgres"
+  password = var.db_password
+  port = 5432
+
+  db_subnet_group_name = aws_db_subnet_group.postgres_subnet_group.name
+  vpc_security_group_ids = [aws_security_group.postgres_sg.id]
+
+  publicly_accessible = false
+
+  backup_retention_period = 7
+
+  skip_final_snapshot = true
+
+  tags = merge(var.common_tags, {
+    Name = "${var.name_prefix}-postgres"
+    Service = "database"
+  })
+}
