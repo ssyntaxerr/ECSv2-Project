@@ -28,7 +28,7 @@ resource "aws_subnet" "priv-subnet" {
 }
 
 resource "aws_route_table" "priv-rt" {
-    vpc_id = aws_vpc.ecsv2-vpc
+    vpc_id = aws_vpc.ecsv2-vpc.id
 
     tags = merge(var.common_tags, {
     Name = "${var.name_prefix}-private-rt"
