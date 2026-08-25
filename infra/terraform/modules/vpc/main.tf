@@ -132,3 +132,32 @@ resource "aws_subnet" "pub-subnet" {
     Tier = "public"
   })
 }
+
+resource "aws_internet_gateway" "igw" {
+  vpc_id = aws_vpc.ecsv2-vpc.id
+
+  tags = merge(var.common_tags, {
+    Name = "${var.name_prefix}-igw"
+  })
+}
+
+resource "aws_route_table" "pub-rt" {
+  vpc_id = aws_vpc.ecsv2-vpc.id
+
+  route {
+    cidr_block = "0.0.0.0/0"
+    gateway_id  = aws_internet_gateway.igw.id
+  }
+
+  tags = merge(var.common_tags, {
+    Name = "${var.name_prefix}-public-rt"
+    Tier = "public"
+  })
+}
+
+resource "aws_route_table_association" "pub-rt-assoc" {
+  for_each = aws_subnet.pub-subnet
+
+  subnet_id = each.value.id
+  route_table_id = aws_route_table.pub-rt.id
+}
