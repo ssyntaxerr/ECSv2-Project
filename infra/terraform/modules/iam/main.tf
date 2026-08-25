@@ -51,3 +51,26 @@ resource "aws_iam_role" "ecs_task" {
         Name = "${var.name_prefix}-ecs-task-role"
     })
 }
+
+resource "aws_iam_role_policy" "ecs_task_sqs" {
+  name = "${var.name_prefix}-ecs-task-sqs-policy"
+  role = aws_iam_role.ecs_task.name
+
+  policy = jsonencode({
+    Version = "2012-10-17"
+
+    Statement = [
+      {
+        Effect = "Allow"
+
+        Action = [
+          "sqs:ReceiveMessage",
+          "sqs:DeleteMessage",
+          "sqs:GetQueueAttributes"
+        ]
+
+        Resource = ""
+      }
+    ]
+  })
+}
