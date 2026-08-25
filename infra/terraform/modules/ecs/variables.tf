@@ -10,6 +10,50 @@ variable "vpc_id" {
   type = string
 }
 
-variable "vpc_cidr" {
+variable "private_subnet_ids" {
+  type = list(string)
+}
+
+variable "api_image" {
   type = string
+}
+
+variable "worker_image" {
+  type = string
+}
+
+variable "dashboard_image" {
+  type = string
+}
+
+variable "execution_role_arn" {
+  type = string
+}
+
+variable "task_role_arn" {
+  type = string
+}
+
+variable "postgres_secret_arn" {
+  type = string
+}
+
+variable "sqs_queue_url" {
+  type = string
+}
+
+variable "db_endpoint" {
+  type = string
+}
+
+variable "db_port" {
+  type = number
+}
+
+variable "redis_endpoint" {
+  type = string
+}
+
+variable "redis_port" {
+  type = number
 }
