@@ -5,3 +5,7 @@ output "cluster_id" {
 output "cluster_name" {
   value = aws_ecs_cluster.ecsv2_cluster.name
 }
+
+output "ecs_security_group_id" {
+  value = aws_security_group.ecs_sg.id
+}

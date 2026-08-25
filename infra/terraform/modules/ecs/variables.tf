@@ -5,3 +5,11 @@ variable "name_prefix" {
 variable "common_tags" {
   type = map(string)
 }
+
+variable "vpc_id" {
+  type = string
+}
+
+variable "vpc_cidr" {
+  type = string
+}
