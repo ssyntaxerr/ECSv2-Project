@@ -112,3 +112,23 @@ resource "aws_security_group" "vpc_endpoints" {
     Name = "${var.name_prefix}-vpc-endpoints-sg"
   })
 }
+
+resource "aws_subnet" "pub-subnet" {
+  for_each = {
+    for index, cidr in var.public_subnet_cidrs :
+    index => {
+      cidr = cidr
+      az   = var.availability_zones[index]
+    }
+  }
+
+  vpc_id = aws_vpc.ecsv2-vpc.id
+  cidr_block = each.value.cidr
+  availability_zone = each.value.az
+  map_public_ip_on_launch = true
+
+  tags = merge(var.common_tags, {
+    Name = "${var.name_prefix}-public-${each.value.az}"
+    Tier = "public"
+  })
+}

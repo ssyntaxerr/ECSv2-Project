@@ -21,3 +21,7 @@ variable "private_subnet_cidrs" {
 variable "aws_region" {
     type = string
 }
+
+variable "public_subnet_cidrs" {
+  type = list(string)
+}
