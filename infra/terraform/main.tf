@@ -18,3 +18,20 @@ module "ecr" {
 
   repositories = var.repositories
 }
+
+module "sqs" {
+  source = "./modules/sqs"
+
+  name_prefix = local.name_prefix
+  common_tags = local.common_tags
+}
+
+module "secrets" {
+  source = "./modules/secrets"
+
+  name_prefix = local.name_prefix
+  common_tags = local.common_tags
+
+  db_username = var.db_username
+  db_password = var.db_password
+}
