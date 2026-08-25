@@ -23,3 +23,13 @@ variable "private_subnet_cidrs" {
     "10.0.2.0/24"
   ]
 }
+
+variable "repositories" {
+  type = list(string)
+
+  default = [
+    "api-repo",
+    "worker-repo",
+    "dashboard-repo"
+  ]
+}
