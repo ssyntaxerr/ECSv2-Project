@@ -35,3 +35,10 @@ module "secrets" {
   db_username = var.db_username
   db_password = var.db_password
 }
+
+module "ecs" {
+  source = "./modules/ecs"
+
+  name_prefix = local.name_prefix
+  common_tags = local.common_tags
+}
