@@ -43,7 +43,7 @@ resource "aws_route_table_association" "priv-rt-assoc" {
 }
 
 resource "aws_vpc_endpoint" "s3_endpoint" {
-  vpc_id       = aws_vpc.ecsv2-vpc
+  vpc_id       = aws_vpc.ecsv2-vpc.id
   service_name = "com.amazonaws.${var.aws_region}.s3"
 
   vpc_endpoint_type = "Gateway"
@@ -69,7 +69,7 @@ locals {
 resource "aws_vpc_endpoint" "interface" {
   for_each = toset(local.interface_endpoint_services)
 
-  vpc_id              = aws_vpc.ecsv2-vpc
+  vpc_id              = aws_vpc.ecsv2-vpc.id
   service_name        = "com.amazonaws.${var.aws_region}.${each.value}"
   vpc_endpoint_type   = "Interface"
   private_dns_enabled = true
@@ -90,7 +90,7 @@ resource "aws_vpc_endpoint" "interface" {
 resource "aws_security_group" "vpc_endpoints" {
   name        = "${var.name_prefix}-vpc-endpoints"
   description = "Allow HTTPS traffic to VPC endpoints"
-  vpc_id      = aws_vpc.ecsv2-vpc
+  vpc_id      = aws_vpc.ecsv2-vpc.id
 
   ingress {
     description = "HTTPS from VPC"
