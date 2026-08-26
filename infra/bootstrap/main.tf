@@ -39,3 +39,36 @@ resource "aws_s3_bucket_public_access_block" "terraform_state" {
 data "cloudflare_zone" "main" {
   name = var.domain_name
 }
+
+resource "aws_acm_certificate" "main" {
+  domain_name = var.domain_name
+  validation_method = "DNS"
+
+  lifecycle {
+    create_before_destroy = true
+  }
+
+  tags = {
+    Name = "${var.domain_name}-certificate"
+    Project = "ECSv2"
+    Environment = "bootstrap"
+    ManagedBy = "Terraform"
+  }
+}
+
+resource "cloudflare_record" "acm_validation" {
+  zone_id = data.cloudflare_zone.main.id
+
+  name = tolist(
+    aws_acm_certificate.main.domain_validation_options
+  )[0].resource_record_name
+
+  type = "CNAME"
+
+  value = tolist(
+    aws_acm_certificate.main.domain_validation_options
+  )[0].resource_record_value
+
+  ttl = 120
+  proxied = false
+}
