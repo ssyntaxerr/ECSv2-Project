@@ -69,3 +69,11 @@ variable "redis_port" {
 variable "aws_region" {
   type = string
 }
+
+variable "api_target_group_arn" {
+  type = string
+}
+
+variable "dashboard_target_group_arn" {
+  type = string
+}

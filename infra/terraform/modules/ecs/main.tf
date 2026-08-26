@@ -229,6 +229,6 @@ resource "aws_ecs_task_definition" "dashboard" {
 
   tags = merge(var.common_tags, {
     Name = "${var.name_prefix}-dashboard-task"
-    Service = "dashbaord"
+    Service = "dashboard"
   })
 }
