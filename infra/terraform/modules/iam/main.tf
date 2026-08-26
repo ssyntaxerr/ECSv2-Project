@@ -49,33 +49,105 @@ resource "aws_iam_role_policy" "ecs_execution_secrets" {
   })
 }
 
-resource "aws_iam_role" "ecs_task" {
-    name = "${var.name_prefix}-ecs-task-role"
+resource "aws_iam_role" "api_task" {
+  name = "${var.name_prefix}-api-task-role"
 
-    assume_role_policy = jsonencode({
-        Version = "2012-10-17"
+  assume_role_policy = jsonencode({
+    Version = "2012-10-17"
 
-        Statement = [
-            {
-                    Effect = "Allow"
-                    
-                    Principal = {
-                        Service = "ecs-tasks.amazonaws.com"
-                    }
+    Statement = [
+      {
+        Effect = "Allow"
 
-                    Action = "sts:AssumeRole"
-            }       
-        ]
-    })
-    
-    tags = merge(var.common_tags, {
-        Name = "${var.name_prefix}-ecs-task-role"
-    })
+        Principal = {
+          Service = "ecs-tasks.amazonaws.com"
+        }
+
+        Action = "sts:AssumeRole"
+      }
+    ]
+  })
+
+  tags = merge(var.common_tags, {
+    Name = "${var.name_prefix}-api-task-role"
+    Service = "api"
+  })
 }
 
-resource "aws_iam_role_policy" "ecs_task_sqs" {
-  name = "${var.name_prefix}-ecs-task-sqs-policy"
-  role = aws_iam_role.ecs_task.name
+resource "aws_iam_role" "worker_task" {
+  name = "${var.name_prefix}-worker-task-role"
+
+  assume_role_policy = jsonencode({
+    Version = "2012-10-17"
+
+    Statement = [
+      {
+        Effect = "Allow"
+
+        Principal = {
+          Service = "ecs-tasks.amazonaws.com"
+        }
+
+        Action = "sts:AssumeRole"
+      }
+    ]
+  })
+
+  tags = merge(var.common_tags, {
+    Name = "${var.name_prefix}-worker-task-role"
+    Service = "worker"
+  })
+}
+
+resource "aws_iam_role" "dashboard_task" {
+  name = "${var.name_prefix}-dashboard-task-role"
+
+  assume_role_policy = jsonencode({
+    Version = "2012-10-17"
+
+    Statement = [
+      {
+        Effect = "Allow"
+
+        Principal = {
+          Service = "ecs-tasks.amazonaws.com"
+        }
+
+        Action = "sts:AssumeRole"
+      }
+    ]
+  })
+
+  tags = merge(var.common_tags, {
+    Name    = "${var.name_prefix}-dashboard-task-role"
+    Service = "dashboard"
+  })
+}
+
+resource "aws_iam_role_policy" "api_sqs" {
+  name = "${var.name_prefix}-api-sqs-policy"
+  role = aws_iam_role.api_task.name
+
+  policy = jsonencode({
+    Version = "2012-10-17"
+
+    Statement = [
+      {
+        Effect = "Allow"
+
+        Action = [
+          "sqs:SendMessage"
+        ]
+
+        Resource = var.queue_arn
+      }
+    ]
+  })
+}
+
+resource "aws_iam_role_policy" "worker_sqs" {
+  name = "${var.name_prefix}-worker-sqs-policy"
+  role = aws_iam_role.worker_task.name
 
   policy = jsonencode({
     Version = "2012-10-17"
@@ -87,8 +159,7 @@ resource "aws_iam_role_policy" "ecs_task_sqs" {
         Action = [
           "sqs:ReceiveMessage",
           "sqs:DeleteMessage",
-          "sqs:GetQueueAttributes",
-          "sqs:SendMessages"
+          "sqs:GetQueueAttributes"
         ]
 
         Resource = var.queue_arn
