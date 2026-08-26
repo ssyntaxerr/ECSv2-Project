@@ -57,3 +57,7 @@ variable "redis_endpoint" {
 variable "redis_port" {
   type = number
 }
+
+variable "aws_region" {
+  type = string
+}
