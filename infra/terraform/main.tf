@@ -24,3 +24,24 @@ module "sqs" {
   name_prefix = local.name_prefix
   common_tags = local.common_tags
 }
+
+module "alb" {
+  source = "./modules/alb"
+
+  name_prefix = local.name_prefix
+  common_tags = local.common_tags
+  vpc_id = module.vpc.vpc_id
+  public_subnet_ids = module.vpc.public_subnet_ids
+
+  certificate_arn = var.certificate_arn
+}
+
+module "ecs_security" {
+  source = "./modules/ecs_security"
+
+  name_prefix = local.name_prefix
+  common_tags = local.common_tags
+
+  vpc_id = module.vpc.vpc_id
+  alb_security_group_id = module.alb.security_group_id
+}
