@@ -296,3 +296,39 @@ resource "aws_ecs_service" "worker" {
     Service = "worker"
   })
 }
+
+resource "aws_ecs_service" "dashboard" {
+  name = "${var.name_prefix}-dashboard-service"
+  cluster = aws_ecs_cluster.ecsv2_cluster.id
+  task_definition = aws_ecs_task_definition.dashboard.arn
+
+  desired_count = 1
+  launch_type = "FARGATE"
+
+  deployment_minimum_healthy_percent = 100
+  deployment_maximum_percent = 200
+
+  deployment_circuit_breaker {
+    enable = true
+    rollback = true
+  }
+
+  network_configuration {
+    subnets = var.private_subnet_ids
+    security_groups = [aws_security_group.ecs_sg.id]
+    assign_public_ip = false
+  }
+
+  load_balancer {
+    target_group_arn = var.dashboard_target_group_arn
+    container_name = "dashboard"
+    container_port = 8081
+  }
+
+  health_check_grace_period_seconds = 60
+
+  tags = merge(var.common_tags, {
+    Name = "${var.name_prefix}-dashboard-service"
+    Service = "dashboard"
+  })
+}
