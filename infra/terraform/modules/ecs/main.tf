@@ -98,3 +98,12 @@ resource "aws_ecs_task_definition" "api" {
     Service = "api"
   })
 }
+
+resource "aws_cloudwatch_log_group" "worker" {
+  name = "/ecs/${var.name_prefix}/worker"
+  retention_in_days = 7
+
+  tags = merge(var.common_tags, {
+    Service = "worker"
+  })
+}
