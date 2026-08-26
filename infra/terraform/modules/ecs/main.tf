@@ -167,3 +167,12 @@ resource "aws_ecs_task_definition" "worker" {
     Service = "worker"
   })
 }
+
+resource "aws_cloudwatch_log_group" "dashboard" {
+  name = "/ecs/${var.name_prefix}/dashboard"
+  retention_in_days = 7
+
+  tags = merge(var.common_tags, {
+    Service = "dashboard"
+  })
+}
