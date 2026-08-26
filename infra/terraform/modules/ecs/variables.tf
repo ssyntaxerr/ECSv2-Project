@@ -46,14 +46,6 @@ variable "sqs_queue_url" {
   type = string
 }
 
-variable "db_endpoint" {
-  type = string
-}
-
-variable "db_port" {
-  type = number
-}
-
 variable "redis_endpoint" {
   type = string
 }
@@ -71,10 +63,6 @@ variable "api_target_group_arn" {
 }
 
 variable "dashboard_target_group_arn" {
-  type = string
-}
-
-variable "alb_security_group_id" {
   type = string
 }
 

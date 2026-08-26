@@ -84,3 +84,43 @@ module "secrets" {
   db_username = var.db_username
   db_password = var.db_password
 }
+
+module "iam" {
+  source = "./modules/iam"
+
+  name_prefix = local.name_prefix
+  common_tags = local.common_tags
+
+  queue_arn = module.sqs.queue_arn
+  postgres_secret_arn = module.secrets.postgres_secret_arn
+}
+
+module "ecs" {
+  source = "./modules/ecs"
+
+  name_prefix = local.name_prefix
+  common_tags = local.common_tags
+  aws_region = var.aws_region
+
+  private_subnet_ids = module.vpc.private_subnet_ids
+  ecs_security_group_id = module.ecs_security.ecs_security_group_id
+
+  api_image = module.ecr.repo_urls["api-repo"]
+  worker_image = module.ecr.repo_urls["worker-repo"]
+  dashboard_image = module.ecr.repo_urls["dashboard-repo"]
+
+  execution_role_arn = module.iam.ecs_execution_role_arn
+  api_task_role_arn = module.iam.api_task_role_arn
+  worker_task_role_arn = module.iam.worker_task_role_arn
+  dashboard_task_role_arn = module.iam.dashboard_task_role_arn
+
+  postgres_secret_arn = module.secrets.postgres_secret_arn
+
+  sqs_queue_url = module.sqs.queue_url
+
+  redis_endpoint = module.redis.redis_endpoint
+  redis_port = module.redis.redis_port
+
+  api_target_group_arn = module.alb.api_target_group_arn
+  dashboard_target_group_arn = module.alb.dashboard_target_group_arn
+}
