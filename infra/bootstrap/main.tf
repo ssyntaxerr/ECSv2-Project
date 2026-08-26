@@ -84,3 +84,48 @@ resource "aws_acm_certificate_validation" "main" {
     cloudflare_record.acm_validation
    ]
 }
+
+resource "aws_iam_openid_connect_provider" "github" {
+  url = "https://token.actions.githubusercontent.com"
+
+  client_id_list = [
+    "sts.amazonaws.com"
+  ]
+}
+
+resource "aws_iam_role" "github_actions" {
+  name = "ECSv2-github-actions-role"
+
+  assume_role_policy = jsonencode({
+    Version = "2012-10-17"
+
+    Statement = [
+      {
+        Effect = "Allow"
+
+        Principal = {
+          Federated = aws_iam_openid_connect_provider.github.arn
+        }
+
+        Action = "sts:AssumeRoleWithWebIdentity"
+
+        Condition = {
+          StringEquals = {
+            "token.actions.githubusercontent.com:aud" = "sts.amazonaws.com"
+          }
+
+          StringLike = {
+            "token.actions.githubusercontent.com:sub" = "repo:ssyntaxerr/ECSv2-Project:*"
+          }
+        }
+      }
+    ]
+  })
+
+  tags = {
+    Name = "ECSv2-github-actions-role"
+    Project = "ECSv2"
+    Environment = "bootstrap"
+    ManagedBy = "Terraform"
+  }
+}
