@@ -41,7 +41,7 @@ data "cloudflare_zone" "main" {
 }
 
 resource "aws_acm_certificate" "main" {
-  domain_name = var.domain_name
+  domain_name       = var.domain_name
   validation_method = "DNS"
 
   lifecycle {
@@ -49,10 +49,10 @@ resource "aws_acm_certificate" "main" {
   }
 
   tags = {
-    Name = "${var.domain_name}-certificate"
-    Project = "ECSv2"
+    Name        = "${var.domain_name}-certificate"
+    Project     = "ECSv2"
     Environment = "bootstrap"
-    ManagedBy = "Terraform"
+    ManagedBy   = "Terraform"
   }
 }
 
@@ -65,11 +65,11 @@ resource "cloudflare_record" "acm_validation" {
 
   type = "CNAME"
 
-  value = tolist(
+  content = tolist(
     aws_acm_certificate.main.domain_validation_options
   )[0].resource_record_value
 
-  ttl = 120
+  ttl     = 120
   proxied = false
 }
 
@@ -80,9 +80,9 @@ resource "aws_acm_certificate_validation" "main" {
     cloudflare_record.acm_validation.hostname
   ]
 
-  depends_on = [ 
+  depends_on = [
     cloudflare_record.acm_validation
-   ]
+  ]
 }
 
 resource "aws_iam_openid_connect_provider" "github" {
@@ -123,10 +123,10 @@ resource "aws_iam_role" "github_terraform" {
   })
 
   tags = {
-    Name = "ECSv2-github-actions-role"
-    Project = "ECSv2"
+    Name        = "ECSv2-github-actions-role"
+    Project     = "ECSv2"
     Environment = "bootstrap"
-    ManagedBy = "Terraform"
+    ManagedBy   = "Terraform"
   }
 }
 
