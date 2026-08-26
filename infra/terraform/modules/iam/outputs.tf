@@ -2,6 +2,14 @@ output "ecs_execution_role_arn" {
   value = aws_iam_role.ecs_execution.arn
 }
 
-output "ecs_task_role_arn" {
-    value = aws_iam_role.ecs_task.arn  
+output "api_task_role_arn" {
+  value = aws_iam_role.api_task.arn
+}
+
+output "worker_task_role_arn" {
+  value = aws_iam_role.worker_task.arn
+}
+
+output "dashboard_task_role_arn" {
+  value = aws_iam_role.dashboard_task.arn
 }
