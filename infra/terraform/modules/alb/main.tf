@@ -23,3 +23,20 @@ resource "aws_security_group" "alb_sg" {
     Service = "alb"
   })
 }
+
+resource "aws_lb" "alb" {
+  name = "${var.name_prefix}-alb"
+  internal = false
+  load_balancer_type = "application"
+
+  security_groups = [
+    aws_security_group.alb_sg.id
+  ]
+
+  subnets = var.public_subnet_ids
+
+  tags = merge(var.common_tags, {
+    Name = "${var.name_prefix}-alb"
+    Service = "alb"
+  })
+}
