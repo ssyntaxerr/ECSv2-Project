@@ -77,3 +77,7 @@ variable "api_target_group_arn" {
 variable "dashboard_target_group_arn" {
   type = string
 }
+
+variable "alb_security_group_id" {
+  type = string
+}
