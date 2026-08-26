@@ -72,3 +72,15 @@ resource "cloudflare_record" "acm_validation" {
   ttl = 120
   proxied = false
 }
+
+resource "aws_acm_certificate_validation" "main" {
+  certificate_arn = aws_acm_certificate.main.arn
+
+  validation_record_fqdns = [
+    cloudflare_record.acm_validation.hostname
+  ]
+
+  depends_on = [ 
+    cloudflare_record.acm_validation
+   ]
+}
