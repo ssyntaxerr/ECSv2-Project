@@ -107,3 +107,52 @@ resource "aws_cloudwatch_log_group" "worker" {
     Service = "worker"
   })
 }
+
+resource "aws_ecs_task_definition" "worker" {
+  family = "${var.name_prefix}-worker"
+  network_mode = "awsvpc"
+  requires_compatibilities = ["FARGATE"]
+
+  cpu = "256"
+  memory = "512"
+
+  execution_role_arn = var.execution_role_arn
+  task_role_arn = var.task_role_arn
+
+  container_definitions = jsonencode([
+    {
+      name = "worker"
+      image = var.worker_image
+      essential = true
+
+      environment = [
+        {
+          name = "SQS_QUEUE_URL"
+          value = var.sqs_queue_url
+        }
+      ]
+
+      secrets = [
+        {
+          name = "DATABASE_URL"
+          valueFrom = "${var.postgres_secret_arn}:DATABASE_URL::"
+        }
+      ]
+
+      logConfiguration = {
+        logDriver = "awslogs"
+
+        options = {
+          awslogs-group = aws_cloudwatch_log_group.worker.name
+          awslogs-region = var.aws_region
+          awslogs-stream-prefix = "ecs"
+        }
+      }
+    }
+  ])
+
+  tags = merge(var.common_tags, {
+    Name = "${var.name_prefix}-worker-task"
+    Service = "worker"
+  })
+}
