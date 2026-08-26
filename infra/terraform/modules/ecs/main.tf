@@ -125,10 +125,21 @@ resource "aws_ecs_task_definition" "worker" {
       image = var.worker_image
       essential = true
 
+      portMappings = [
+        {
+          containerPort = 8090
+          protocol = "tcp"
+        }
+      ]
+
       environment = [
         {
           name = "SQS_QUEUE_URL"
           value = var.sqs_queue_url
+        },
+        {
+          name = "HEALTH_PORT"
+          value = "8090"
         }
       ]
 
