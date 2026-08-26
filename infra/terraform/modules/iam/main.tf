@@ -28,6 +28,27 @@ resource "aws_iam_role_policy_attachment" "ecs_execution_policy" {
     policy_arn = "arn:aws:iam:aws:policy/service-role/AmazonECSTaskExecutionRolePolicy"
 }
 
+resource "aws_iam_role_policy" "ecs_execution_secrets" {
+  name = "${var.name_prefix}-ecs-execution-secrets-policy"
+  role = aws_iam_role.ecs_execution.name
+
+  policy = jsonencode({
+    Version = "2012-10-17"
+
+    Statement = [
+      {
+        Effect = "Allow"
+
+        Action = [
+          "secretsmanager:GetSecretValue"
+        ]
+
+        Resource = var.postgres_secret_arn
+      }
+    ]
+  })
+}
+
 resource "aws_iam_role" "ecs_task" {
     name = "${var.name_prefix}-ecs-task-role"
 
@@ -66,10 +87,11 @@ resource "aws_iam_role_policy" "ecs_task_sqs" {
         Action = [
           "sqs:ReceiveMessage",
           "sqs:DeleteMessage",
-          "sqs:GetQueueAttributes"
+          "sqs:GetQueueAttributes",
+          "sqs:SendMessages"
         ]
 
-        Resource = ""
+        Resource = var.queue_arn
       }
     ]
   })

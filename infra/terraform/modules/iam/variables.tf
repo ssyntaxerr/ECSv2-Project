@@ -5,3 +5,11 @@ variable "name_prefix" {
 variable "common_tags" {
   type        = map(string)
 }
+
+variable "queue_arn" {
+  type = string
+}
+
+variable "postgres_secret_arn" {
+  type = string
+}
