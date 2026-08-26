@@ -1,11 +1,11 @@
 resource "aws_elasticache_subnet_group" "redis_subnet_group" {
-    name = "${var.name_prefix}-redis-subnet-group"
-    subnet_ids = var.private_subnet_ids
+  name       = "${var.name_prefix}-redis-subnet-group"
+  subnet_ids = var.private_subnet_ids
 
-    tags = merge(var.common_tags, {
-        Name = "${var.name_prefix}-redis-subnet-group"
-        Service = "cache"
-    })
+  tags = merge(var.common_tags, {
+    Name    = "${var.name_prefix}-redis-subnet-group"
+    Service = "cache"
+  })
 }
 
 resource "aws_security_group" "redis_sg" {
@@ -36,10 +36,10 @@ resource "aws_security_group" "redis_sg" {
 
 resource "aws_elasticache_replication_group" "redis" {
   replication_group_id = "${var.name_prefix}-redis"
-  description = "Redis cache for URL shortener"
+  description          = "Redis cache for URL shortener"
 
-  engine = "redis"
-  node_type = "cache.t4g.micro"
+  engine             = "redis"
+  node_type          = "cache.t4g.micro"
   num_cache_clusters = 1
 
   port = 6379
@@ -48,12 +48,12 @@ resource "aws_elasticache_replication_group" "redis" {
   security_group_ids = [aws_security_group.redis_sg.id]
 
   at_rest_encryption_enabled = true
-  transit_encryption_enabled  = true
+  transit_encryption_enabled = true
 
   automatic_failover_enabled = false
 
   tags = merge(var.common_tags, {
-    Name = "${var.name_prefix}-redis"
+    Name    = "${var.name_prefix}-redis"
     Service = "cache"
   })
 }

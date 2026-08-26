@@ -23,9 +23,9 @@ resource "aws_iam_role" "ecs_execution" {
 }
 
 resource "aws_iam_role_policy_attachment" "ecs_execution_policy" {
-    role = aws_iam_role.ecs_execution.name
-    
-    policy_arn = "arn:aws:iam:aws:policy/service-role/AmazonECSTaskExecutionRolePolicy"
+  role = aws_iam_role.ecs_execution.name
+
+  policy_arn = "arn:aws:iam:aws:policy/service-role/AmazonECSTaskExecutionRolePolicy"
 }
 
 resource "aws_iam_role_policy" "ecs_execution_secrets" {
@@ -69,7 +69,7 @@ resource "aws_iam_role" "api_task" {
   })
 
   tags = merge(var.common_tags, {
-    Name = "${var.name_prefix}-api-task-role"
+    Name    = "${var.name_prefix}-api-task-role"
     Service = "api"
   })
 }
@@ -94,7 +94,7 @@ resource "aws_iam_role" "worker_task" {
   })
 
   tags = merge(var.common_tags, {
-    Name = "${var.name_prefix}-worker-task-role"
+    Name    = "${var.name_prefix}-worker-task-role"
     Service = "worker"
   })
 }

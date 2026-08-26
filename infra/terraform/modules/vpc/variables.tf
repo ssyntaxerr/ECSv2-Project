@@ -1,25 +1,25 @@
 variable "name_prefix" {
-    type = string
+  type = string
 }
 
 variable "common_tags" {
-    type = map(string)
+  type = map(string)
 }
 
 variable "vpc_cidr" {
-    type = string
+  type = string
 }
 
 variable "availability_zones" {
-    type = list(string)
+  type = list(string)
 }
 
 variable "private_subnet_cidrs" {
-    type = list(string)
+  type = list(string)
 }
 
 variable "aws_region" {
-    type = string
+  type = string
 }
 
 variable "public_subnet_cidrs" {

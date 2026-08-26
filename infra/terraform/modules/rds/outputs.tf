@@ -1,5 +1,5 @@
 output "db_endpoint" {
-    value = aws_db_instance.postgres.address
+  value = aws_db_instance.postgres.address
 }
 
 output "db_port" {
@@ -11,7 +11,7 @@ output "db_name" {
 }
 
 output "db_username" {
-  value = aws_db_instance.postgres.username
+  value     = aws_db_instance.postgres.username
   sensitive = true
 }
 

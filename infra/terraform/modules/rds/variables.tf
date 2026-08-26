@@ -1,26 +1,26 @@
 variable "name_prefix" {
-    type = string
+  type = string
 }
 
 variable "common_tags" {
-    type = map(string)
+  type = map(string)
 }
 
 variable "private_subnet_ids" {
-    type = list(string)
+  type = list(string)
 }
 
 variable "vpc_id" {
-    type = string
+  type = string
 }
 
 variable "ecs_security_group_id" {
-    type = string
+  type = string
 }
 
 variable "db_password" {
-  type        = string
-  sensitive   = true
+  type      = string
+  sensitive = true
 }
 
 variable "db_username" {

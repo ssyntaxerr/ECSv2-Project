@@ -1,5 +1,5 @@
 resource "aws_wafv2_web_acl" "main" {
-  name = "${var.name_prefix}-waf"
+  name  = "${var.name_prefix}-waf"
   scope = "REGIONAL"
 
   default_action {
@@ -7,53 +7,53 @@ resource "aws_wafv2_web_acl" "main" {
   }
 
   rule {
-    name = "AWSCommonRules"
+    name     = "AWSCommonRules"
     priority = 1
 
     override_action {
-      none{}
+      none {}
     }
 
     statement {
       managed_rule_group_statement {
-        name = "AWSManagedRulesCommonRuleSet"
+        name        = "AWSManagedRulesCommonRuleSet"
         vendor_name = "AWS"
       }
     }
 
     visibility_config {
       cloudwatch_metrics_enabled = true
-      metric_name = "${var.name_prefix}-common-rules"
-      sampled_requests_enabled = true
+      metric_name                = "${var.name_prefix}-common-rules"
+      sampled_requests_enabled   = true
     }
   }
 
   rule {
-    name = "RateLimit"
+    name     = "RateLimit"
     priority = 2
 
     action {
-      block{}
+      block {}
     }
 
     statement {
       rate_based_statement {
-        limit = 2000
+        limit              = 2000
         aggregate_key_type = "IP"
       }
     }
 
     visibility_config {
       cloudwatch_metrics_enabled = true
-      metric_name = "${var.name_prefix}-rate-limit"
-      sampled_requests_enabled = true
+      metric_name                = "${var.name_prefix}-rate-limit"
+      sampled_requests_enabled   = true
     }
   }
 
   visibility_config {
     cloudwatch_metrics_enabled = true
-    metric_name = "${var.name_prefix}-waf"
-    sampled_requests_enabled = true
+    metric_name                = "${var.name_prefix}-waf"
+    sampled_requests_enabled   = true
   }
 
   tags = merge(var.common_tags, {

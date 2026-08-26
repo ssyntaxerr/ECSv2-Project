@@ -1,10 +1,10 @@
 resource "aws_db_subnet_group" "postgres_subnet_group" {
-    name = "${var.name_prefix}-postgres-subnet-group"
-    subnet_ids = var.private_subnet_ids
+  name       = "${var.name_prefix}-postgres-subnet-group"
+  subnet_ids = var.private_subnet_ids
 
-    tags = merge(var.common_tags, {
-        Name = "${var.name_prefix}-postgres-subnet-group"
-    })
+  tags = merge(var.common_tags, {
+    Name = "${var.name_prefix}-postgres-subnet-group"
+  })
 }
 
 resource "aws_security_group" "postgres_sg" {
@@ -35,21 +35,21 @@ resource "aws_security_group" "postgres_sg" {
 resource "aws_db_instance" "postgres" {
   identifier = "${var.name_prefix}-postgres"
 
-  engine = "postgres"
+  engine         = "postgres"
   engine_version = "16"
 
-  instance_class = "db.t4g.micro"
-  allocated_storage = 20
+  instance_class        = "db.t4g.micro"
+  allocated_storage     = 20
   max_allocated_storage = 100
-  storage_type = "gp3"
-  storage_encrypted = true
+  storage_type          = "gp3"
+  storage_encrypted     = true
 
-  db_name = "urlshortenerdb"
+  db_name  = "urlshortenerdb"
   username = var.db_username
   password = var.db_password
-  port = 5432
+  port     = 5432
 
-  db_subnet_group_name = aws_db_subnet_group.postgres_subnet_group.name
+  db_subnet_group_name   = aws_db_subnet_group.postgres_subnet_group.name
   vpc_security_group_ids = [aws_security_group.postgres_sg.id]
 
   publicly_accessible = false
@@ -59,7 +59,7 @@ resource "aws_db_instance" "postgres" {
   skip_final_snapshot = true
 
   tags = merge(var.common_tags, {
-    Name = "${var.name_prefix}-postgres"
+    Name    = "${var.name_prefix}-postgres"
     Service = "database"
   })
 }

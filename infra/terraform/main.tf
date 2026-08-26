@@ -1,20 +1,20 @@
 module "vpc" {
   source = "./modules/vpc"
 
-  aws_region = var.aws_region
-  name_prefix = local.name_prefix
-  common_tags = local.common_tags
-  vpc_cidr = var.vpc_cidr
-  availability_zones = var.availability_zones
+  aws_region           = var.aws_region
+  name_prefix          = local.name_prefix
+  common_tags          = local.common_tags
+  vpc_cidr             = var.vpc_cidr
+  availability_zones   = var.availability_zones
   private_subnet_cidrs = var.private_subnet_cidrs
-  public_subnet_cidrs = var.public_subnet_cidrs
+  public_subnet_cidrs  = var.public_subnet_cidrs
 }
 
 module "ecr" {
   source = "./modules/ecr"
 
-  name_prefix = local.name_prefix
-  common_tags = local.common_tags
+  name_prefix  = local.name_prefix
+  common_tags  = local.common_tags
   repositories = var.repositories
 }
 
@@ -28,9 +28,9 @@ module "sqs" {
 module "alb" {
   source = "./modules/alb"
 
-  name_prefix = local.name_prefix
-  common_tags = local.common_tags
-  vpc_id = module.vpc.vpc_id
+  name_prefix       = local.name_prefix
+  common_tags       = local.common_tags
+  vpc_id            = module.vpc.vpc_id
   public_subnet_ids = module.vpc.public_subnet_ids
 
   certificate_arn = var.certificate_arn
@@ -42,7 +42,7 @@ module "ecs_security" {
   name_prefix = local.name_prefix
   common_tags = local.common_tags
 
-  vpc_id = module.vpc.vpc_id
+  vpc_id                = module.vpc.vpc_id
   alb_security_group_id = module.alb.security_group_id
 }
 
@@ -52,8 +52,8 @@ module "rds" {
   name_prefix = local.name_prefix
   common_tags = local.common_tags
 
-  vpc_id = module.vpc.vpc_id
-  private_subnet_ids = module.vpc.private_subnet_ids
+  vpc_id                = module.vpc.vpc_id
+  private_subnet_ids    = module.vpc.private_subnet_ids
   ecs_security_group_id = module.ecs_security.ecs_security_group_id
 
   db_username = var.db_username
@@ -66,8 +66,8 @@ module "redis" {
   name_prefix = local.name_prefix
   common_tags = local.common_tags
 
-  vpc_id = module.vpc.vpc_id
-  private_subnet_ids = module.vpc.private_subnet_ids
+  vpc_id                = module.vpc.vpc_id
+  private_subnet_ids    = module.vpc.private_subnet_ids
   ecs_security_group_id = module.ecs_security.ecs_security_group_id
 }
 
@@ -78,8 +78,8 @@ module "secrets" {
   common_tags = local.common_tags
 
   db_endpoint = module.rds.db_endpoint
-  db_port = module.rds.db_port
-  db_name = module.rds.db_name
+  db_port     = module.rds.db_port
+  db_name     = module.rds.db_name
 
   db_username = var.db_username
   db_password = var.db_password
@@ -91,7 +91,7 @@ module "iam" {
   name_prefix = local.name_prefix
   common_tags = local.common_tags
 
-  queue_arn = module.sqs.queue_arn
+  queue_arn           = module.sqs.queue_arn
   postgres_secret_arn = module.secrets.postgres_secret_arn
 }
 
@@ -100,18 +100,18 @@ module "ecs" {
 
   name_prefix = local.name_prefix
   common_tags = local.common_tags
-  aws_region = var.aws_region
+  aws_region  = var.aws_region
 
-  private_subnet_ids = module.vpc.private_subnet_ids
+  private_subnet_ids    = module.vpc.private_subnet_ids
   ecs_security_group_id = module.ecs_security.ecs_security_group_id
 
-  api_image = module.ecr.repo_urls["api-repo"]
-  worker_image = module.ecr.repo_urls["worker-repo"]
+  api_image       = module.ecr.repo_urls["api-repo"]
+  worker_image    = module.ecr.repo_urls["worker-repo"]
   dashboard_image = module.ecr.repo_urls["dashboard-repo"]
 
-  execution_role_arn = module.iam.ecs_execution_role_arn
-  api_task_role_arn = module.iam.api_task_role_arn
-  worker_task_role_arn = module.iam.worker_task_role_arn
+  execution_role_arn      = module.iam.ecs_execution_role_arn
+  api_task_role_arn       = module.iam.api_task_role_arn
+  worker_task_role_arn    = module.iam.worker_task_role_arn
   dashboard_task_role_arn = module.iam.dashboard_task_role_arn
 
   postgres_secret_arn = module.secrets.postgres_secret_arn
@@ -119,9 +119,9 @@ module "ecs" {
   sqs_queue_url = module.sqs.queue_url
 
   redis_endpoint = module.redis.redis_endpoint
-  redis_port = module.redis.redis_port
+  redis_port     = module.redis.redis_port
 
-  api_target_group_arn = module.alb.api_target_group_arn
+  api_target_group_arn       = module.alb.api_target_group_arn
   dashboard_target_group_arn = module.alb.dashboard_target_group_arn
 }
 

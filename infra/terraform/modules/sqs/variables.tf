@@ -1,7 +1,7 @@
 variable "name_prefix" {
-  type        = string
+  type = string
 }
 
 variable "common_tags" {
-  type        = map(string)
+  type = map(string)
 }

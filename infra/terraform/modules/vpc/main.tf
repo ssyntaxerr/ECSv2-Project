@@ -1,90 +1,90 @@
 resource "aws_vpc" "ecsv2-vpc" {
-    cidr_block = var.vpc_cidr
-    enable_dns_support = true
-    enable_dns_hostnames = true
-    
-    tags = merge(var.common_tags, {
-        Name = "${var.name_prefix}-vpc"
-    })
+  cidr_block           = var.vpc_cidr
+  enable_dns_support   = true
+  enable_dns_hostnames = true
+
+  tags = merge(var.common_tags, {
+    Name = "${var.name_prefix}-vpc"
+  })
 }
 
 resource "aws_subnet" "priv-subnet" {
-    for_each = {
-        for index, cidr in var.private_subnet_cidrs :
-        index => {
-            cidr = cidr
-            az = var.availability_zones[index]
-        }
+  for_each = {
+    for index, cidr in var.private_subnet_cidrs :
+    index => {
+      cidr = cidr
+      az   = var.availability_zones[index]
     }
+  }
 
-    vpc_id = aws_vpc.ecsv2-vpc.id
-    cidr_block = each.value.cidr
-    availability_zone = each.value.az
+  vpc_id            = aws_vpc.ecsv2-vpc.id
+  cidr_block        = each.value.cidr
+  availability_zone = each.value.az
 
-    tags = merge(var.common_tags, {
-        Name = "${var.name_prefix}-private-${each.value.az}"
-        Tier = "private"
-    })
+  tags = merge(var.common_tags, {
+    Name = "${var.name_prefix}-private-${each.value.az}"
+    Tier = "private"
+  })
 }
 
 resource "aws_route_table" "priv-rt" {
-    vpc_id = aws_vpc.ecsv2-vpc.id
+  vpc_id = aws_vpc.ecsv2-vpc.id
 
-    tags = merge(var.common_tags, {
+  tags = merge(var.common_tags, {
     Name = "${var.name_prefix}-private-rt"
     Tier = "private"
   })
 }
 
 resource "aws_route_table_association" "priv-rt-assoc" {
-    for_each = aws_subnet.priv-subnet
-    subnet_id = each.value.id
-    route_table_id = aws_route_table.priv-rt.id
+  for_each       = aws_subnet.priv-subnet
+  subnet_id      = each.value.id
+  route_table_id = aws_route_table.priv-rt.id
 }
 
 resource "aws_vpc_endpoint" "s3_endpoint" {
-    vpc_id = aws_vpc.ecsv2-vpc
-    service_name = "com.amazonaws.${var.aws_region}.s3"
-    
-    vpc_endpoint_type = "Gateway"
+  vpc_id       = aws_vpc.ecsv2-vpc
+  service_name = "com.amazonaws.${var.aws_region}.s3"
 
-    route_table_ids = [
-        aws_route_table.priv-rt.id
-    ]
+  vpc_endpoint_type = "Gateway"
 
-    tags = merge(var.common_tags, {
-        Name = "${var.name_prefix}-s3-endpoint"
-    })
+  route_table_ids = [
+    aws_route_table.priv-rt.id
+  ]
+
+  tags = merge(var.common_tags, {
+    Name = "${var.name_prefix}-s3-endpoint"
+  })
 }
 
 locals {
-    interface_endpoint_services = [
-        "ecr.api",
-        "ecr.dkr",
-        "logs",
-        "sqs",
-    ]
+  interface_endpoint_services = [
+    "ecr.api",
+    "ecr.dkr",
+    "logs",
+    "sqs",
+  ]
 }
 
 resource "aws_vpc_endpoint" "interface" {
-    for_each = toset(local.interface_endpoint_services)
+  for_each = toset(local.interface_endpoint_services)
 
-    vpc_id = aws_vpc.ecsv2-vpc
-    service_name = "com.amazonaws.${var.aws_region}.${each.value}"
-    vpc_endpoint_type = "Interface"
-    private_dns_enabled = true
+  vpc_id              = aws_vpc.ecsv2-vpc
+  service_name        = "com.amazonaws.${var.aws_region}.${each.value}"
+  vpc_endpoint_type   = "Interface"
+  private_dns_enabled = true
 
-    subnet_ids = [
-        for subnet in aws_subnet.priv-subnet : subnet.id
-    ]
+  subnet_ids = [
+    for subnet in aws_subnet.priv-subnet : subnet.id
+  ]
 
-    security_group_ids = [
-        aws_security_group.vpc_endpoints.id
-    ]
+  security_group_ids = [
+    aws_security_group.vpc_endpoints.id
+  ]
 
-    tags = merge(var.common_tags, {
-        Name = "${var.name_prefix}-${each.value}-endpoint"
-    })
+  tags = merge(var.common_tags, {
+    Name = "${var.name_prefix}-${each.value}-endpoint"
+  })
 }
 
 resource "aws_security_group" "vpc_endpoints" {
@@ -122,9 +122,9 @@ resource "aws_subnet" "pub-subnet" {
     }
   }
 
-  vpc_id = aws_vpc.ecsv2-vpc.id
-  cidr_block = each.value.cidr
-  availability_zone = each.value.az
+  vpc_id                  = aws_vpc.ecsv2-vpc.id
+  cidr_block              = each.value.cidr
+  availability_zone       = each.value.az
   map_public_ip_on_launch = true
 
   tags = merge(var.common_tags, {
@@ -146,7 +146,7 @@ resource "aws_route_table" "pub-rt" {
 
   route {
     cidr_block = "0.0.0.0/0"
-    gateway_id  = aws_internet_gateway.igw.id
+    gateway_id = aws_internet_gateway.igw.id
   }
 
   tags = merge(var.common_tags, {
@@ -158,6 +158,6 @@ resource "aws_route_table" "pub-rt" {
 resource "aws_route_table_association" "pub-rt-assoc" {
   for_each = aws_subnet.pub-subnet
 
-  subnet_id = each.value.id
+  subnet_id      = each.value.id
   route_table_id = aws_route_table.pub-rt.id
 }
