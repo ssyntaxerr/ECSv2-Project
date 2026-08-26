@@ -7,7 +7,7 @@ output "db_port" {
 }
 
 output "db_name" {
-  value = aws_db_instance.postgres.name
+  value = aws_db_instance.postgres.db_name
 }
 
 output "db_username" {

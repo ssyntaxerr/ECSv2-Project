@@ -26,7 +26,7 @@ resource "aws_sqs_queue_redrive_policy" "analytics_redrive" {
   queue_url = aws_sqs_queue.analytics.id
 
   redrive_policy = jsonencode({
-    deadLetterTargetArn = aws_sqs.analytics_dlq.arn
+    deadLetterTargetArn = aws_sqs_queue.analytics_dlq.arn
     maxReceiveCount     = 3
   })
 }
