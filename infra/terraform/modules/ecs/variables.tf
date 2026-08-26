@@ -30,7 +30,15 @@ variable "execution_role_arn" {
   type = string
 }
 
-variable "task_role_arn" {
+variable "api_task_role_arn" {
+  type = string
+}
+
+variable "worker_task_role_arn" {
+  type = string
+}
+
+variable "dashboard_task_role_arn" {
   type = string
 }
 

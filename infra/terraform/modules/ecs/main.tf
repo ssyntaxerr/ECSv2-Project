@@ -44,7 +44,7 @@ resource "aws_ecs_task_definition" "api" {
   memory = "1024"
 
   execution_role_arn = var.execution_role_arn
-  task_role_arn = var.task_role_arn
+  task_role_arn = var.api_task_role_arn
 
   container_definitions = jsonencode([
     {
@@ -117,7 +117,7 @@ resource "aws_ecs_task_definition" "worker" {
   memory = "512"
 
   execution_role_arn = var.execution_role_arn
-  task_role_arn = var.task_role_arn
+  task_role_arn = var.worker_task_role_arn
 
   container_definitions = jsonencode([
     {
@@ -186,7 +186,7 @@ resource "aws_ecs_task_definition" "dashboard" {
   memory = "512"
 
   execution_role_arn = var.execution_role_arn
-  task_role_arn = var.task_role_arn
+  task_role_arn = var.dashboard_task_role_arn
 
   container_definitions = jsonencode([
     {
