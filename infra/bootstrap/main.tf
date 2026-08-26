@@ -93,7 +93,7 @@ resource "aws_iam_openid_connect_provider" "github" {
   ]
 }
 
-resource "aws_iam_role" "github_actions" {
+resource "aws_iam_role" "github_terraform" {
   name = "ECSv2-github-actions-role"
 
   assume_role_policy = jsonencode({
