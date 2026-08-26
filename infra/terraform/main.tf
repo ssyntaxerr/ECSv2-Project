@@ -70,3 +70,17 @@ module "redis" {
   private_subnet_ids = module.vpc.private_subnet_ids
   ecs_security_group_id = module.ecs_security.ecs_security_group_id
 }
+
+module "secrets" {
+  source = "./modules/secrets"
+
+  name_prefix = local.name_prefix
+  common_tags = local.common_tags
+
+  db_endpoint = module.rds.db_endpoint
+  db_port = module.rds.db_port
+  db_name = module.rds.db_name
+
+  db_username = var.db_username
+  db_password = var.db_password
+}
