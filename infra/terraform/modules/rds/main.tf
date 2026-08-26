@@ -45,7 +45,7 @@ resource "aws_db_instance" "postgres" {
   storage_encrypted = true
 
   db_name = "urlshortenerdb"
-  username = "postgres"
+  username = var.db_username
   password = var.db_password
   port = 5432
 

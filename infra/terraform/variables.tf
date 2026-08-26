@@ -36,7 +36,7 @@ variable "repositories" {
 
 variable "db_username" {
   type      = string
-  default   = "postgres"
+  default   = "app"
 }
 
 variable "db_password" {

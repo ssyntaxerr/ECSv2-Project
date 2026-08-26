@@ -45,3 +45,17 @@ module "ecs_security" {
   vpc_id = module.vpc.vpc_id
   alb_security_group_id = module.alb.security_group_id
 }
+
+module "rds" {
+  source = "./modules/rds"
+
+  name_prefix = local.name_prefix
+  common_tags = local.common_tags
+
+  vpc_id = module.vpc.vpc_id
+  private_subnet_ids = module.vpc.private_subnet_ids
+  ecs_security_group_id = module.ecs_security.ecs_security_group_id
+
+  db_username = var.db_username
+  db_password = var.db_password
+}
