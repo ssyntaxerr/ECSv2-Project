@@ -232,3 +232,39 @@ resource "aws_ecs_task_definition" "dashboard" {
     Service = "dashboard"
   })
 }
+
+resource "aws_ecs_service" "api" {
+  name = "${var.name_prefix}-api-service"
+  cluster = aws_ecs_cluster.ecsv2_cluster.id
+  task_definition = aws_ecs_task_definition.api.arn
+
+  desired_count = 2
+  launch_type = "FARGATE"
+
+  deployment_minimum_healthy_percent = 100
+  deployment_maximum_percent = 200
+
+  deployment_circuit_breaker {
+    enable = true
+    rollback = true
+  }
+
+  network_configuration {
+    subnets = var.private_subnet_ids
+    security_groups = [aws_security_group.ecs_sg.id]
+    assign_public_ip = false
+  }
+
+  load_balancer {
+    target_group_arn = var.api_target_group_arn
+    container_name = "api"
+    container_port = 8080
+  }
+
+  health_check_grace_period_seconds = 60
+
+  tags = merge(var.common_tags, {
+    Name = "${var.name_prefix}-api-service"
+    Service = "api"
+  })
+}
