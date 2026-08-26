@@ -52,3 +52,7 @@ variable "public_subnet_cidrs" {
     "10.0.102.0/24"
   ]
 }
+
+variable "certificate_arn" {
+  type = string
+}
