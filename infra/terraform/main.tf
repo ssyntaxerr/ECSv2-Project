@@ -124,3 +124,12 @@ module "ecs" {
   api_target_group_arn = module.alb.api_target_group_arn
   dashboard_target_group_arn = module.alb.dashboard_target_group_arn
 }
+
+module "waf" {
+  source = "./modules/waf"
+
+  name_prefix = local.name_prefix
+  common_tags = local.common_tags
+
+  alb_arn = module.alb.alb_arn
+}
