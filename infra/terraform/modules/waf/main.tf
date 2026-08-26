@@ -28,6 +28,28 @@ resource "aws_wafv2_web_acl" "main" {
     }
   }
 
+  rule {
+    name = "RateLimit"
+    priority = 2
+
+    action {
+      block{}
+    }
+
+    statement {
+      rate_based_statement {
+        limit = 2000
+        aggregate_key_type = "IP"
+      }
+    }
+
+    visibility_config {
+      cloudwatch_metrics_enabled = true
+      metric_name = "${var.name_prefix}-rate-limit"
+      sampled_requests_enabled = true
+    }
+  }
+
   visibility_config {
     cloudwatch_metrics_enabled = true
     metric_name = "${var.name_prefix}-waf"
@@ -37,4 +59,9 @@ resource "aws_wafv2_web_acl" "main" {
   tags = merge(var.common_tags, {
     Name = "${var.name_prefix}-waf"
   })
+}
+
+resource "aws_wafv2_web_acl_association" "alb" {
+  resource_arn = var.alb_arn
+  web_acl_arn  = aws_wafv2_web_acl.main.arn
 }
