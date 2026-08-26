@@ -40,3 +40,53 @@ resource "aws_lb" "alb" {
     Service = "alb"
   })
 }
+
+resource "aws_lb_target_group" "api" {
+  name = "${var.name_prefix}-api-tg"
+  port = 8080
+  protocol = "HTTP"
+  vpc_id = var.vpc_id
+  target_type = "ip"
+
+  health_check {
+    enabled = true
+    path = "/healthz"
+    protocol = "HTTP"
+    port = "traffic-port"
+    healthy_threshold = 2
+    unhealthy_threshold = 3
+    timeout = 5
+    interval = 30
+    matcher = "200"
+  }
+
+  tags = merge(var.common_tags, {
+    Name = "${var.name_prefix}-api-tg"
+    Service = "api"
+  })
+}
+
+resource "aws_lb_target_group" "dashboard" {
+  name = "${var.name_prefix}-dashboard-tg"
+  port = 8081
+  protocol = "HTTP"
+  vpc_id = var.vpc_id
+  target_type = "ip"
+
+  health_check {
+    enabled = true
+    path = "/healthz"
+    protocol = "HTTP"
+    port = "traffic-port"
+    healthy_threshold = 2
+    unhealthy_threshold = 3
+    timeout = 5
+    interval = 30
+    matcher = "200"
+  }
+
+  tags = merge(var.common_tags, {
+    Name = "${var.name_prefix}-dashboard-tg"
+    Service = "dashboard"
+  })
+}
