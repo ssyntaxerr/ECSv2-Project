@@ -1,5 +1,5 @@
 from fastapi import FastAPI, HTTPException, Request
-from fastapi.responses import RedirectResponse
+from fastapi.responses import FileResponse, RedirectResponse
 import os, hashlib, time, json
 from .db import put_mapping, get_mapping, get_backend_type, increment_clicks
 from .events import publish_click_event
@@ -11,6 +11,9 @@ app = FastAPI()
 def health():
     return {"status": "ok", "ts": int(time.time()), "db": get_backend_type()}
 
+@app.get("/")
+def homepage():
+    return FileResponse("static/index.html")
 
 @app.post("/shorten")
 async def shorten(req: Request):

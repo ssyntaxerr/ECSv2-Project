@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>URL Shortener</title>
+
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      max-width: 1000px;
+      margin: 40px auto;
+      padding: 0 20px;
+      background: #f5f5f5;
+      color: #222;
+    }
+
+    h1, h2 {
+      margin-bottom: 12px;
+    }
+
+    .card {
+      background: white;
+      padding: 24px;
+      border-radius: 12px;
+      margin-bottom: 24px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    }
+
+    .row {
+      display: flex;
+      gap: 12px;
+    }
+
+    input {
+      flex: 1;
+      padding: 12px;
+      font-size: 16px;
+    }
+
+    button {
+      padding: 12px 18px;
+      cursor: pointer;
+    }
+
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+    }
+
+    .stat {
+      background: #f3f4f6;
+      padding: 16px;
+      border-radius: 8px;
+      text-align: center;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    th,
+    td {
+      padding: 10px;
+      border-bottom: 1px solid #ddd;
+      text-align: left;
+    }
+
+    #result {
+      margin-top: 16px;
+      word-break: break-all;
+    }
+  </style>
+</head>
+
+<body>
+
+  <h1>URL Shortener</h1>
+
+  <div class="card">
+    <h2>Shorten a URL</h2>
+
+    <div class="row">
+      <input
+        id="urlInput"
+        type="url"
+        placeholder="https://example.com"
+      />
+
+      <button onclick="shortenUrl()">
+        Shorten
+      </button>
+    </div>
+
+    <div id="result"></div>
+  </div>
+
+  <div class="card">
+    <h2>Analytics Summary</h2>
+
+    <div class="stats">
+      <div class="stat">
+        <strong id="totalUrls">-</strong>
+        <div>Total URLs</div>
+      </div>
+
+      <div class="stat">
+        <strong id="totalClicks">-</strong>
+        <div>Total Clicks</div>
+      </div>
+
+      <div class="stat">
+        <strong id="clicksToday">-</strong>
+        <div>Clicks Today</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>Top URLs</h2>
+
+    <table>
+      <thead>
+        <tr>
+          <th>Code</th>
+          <th>URL</th>
+          <th>Clicks</th>
+        </tr>
+      </thead>
+
+      <tbody id="topUrls"></tbody>
+    </table>
+  </div>
+
+  <div class="card">
+    <h2>Recent Clicks</h2>
+
+    <table>
+      <thead>
+        <tr>
+          <th>Code</th>
+          <th>IP</th>
+          <th>Time</th>
+        </tr>
+      </thead>
+
+      <tbody id="recentClicks"></tbody>
+    </table>
+  </div>
+
+  <script>
+    async function shortenUrl() {
+      const input = document.getElementById("urlInput");
+      const result = document.getElementById("result");
+
+      const url = input.value.trim();
+
+      if (!url) {
+        result.textContent = "Enter a URL first.";
+        return;
+      }
+
+      try {
+        const response = await fetch("/shorten", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({ url })
+        });
+
+        const data = await response.json();
+
+        if (!response.ok) {
+          result.textContent = data.detail || "Failed to shorten URL.";
+          return;
+        }
+
+        result.innerHTML = `
+          Short URL:
+          <a href="${data.short_url}" target="_blank">
+            ${data.short_url}
+          </a>
+        `;
+
+        loadAnalytics();
+
+      } catch (error) {
+        result.textContent = "Request failed.";
+      }
+    }
+
+    async function loadSummary() {
+      const response = await fetch("/summary");
+
+      if (!response.ok) {
+        return;
+      }
+
+      const data = await response.json();
+
+      document.getElementById("totalUrls").textContent =
+        data.total_urls;
+
+      document.getElementById("totalClicks").textContent =
+        data.total_clicks;
+
+      document.getElementById("clicksToday").textContent =
+        data.clicks_today;
+    }
+
+    async function loadTopUrls() {
+      const response = await fetch("/top");
+
+      if (!response.ok) {
+        return;
+      }
+
+      const data = await response.json();
+
+      const table = document.getElementById("topUrls");
+
+      table.innerHTML = "";
+
+      for (const item of data) {
+        table.innerHTML += `
+          <tr>
+            <td>${item.short_code}</td>
+            <td>${item.url}</td>
+            <td>${item.clicks}</td>
+          </tr>
+        `;
+      }
+    }
+
+    async function loadRecent() {
+      const response = await fetch("/recent");
+
+      if (!response.ok) {
+        return;
+      }
+
+      const data = await response.json();
+
+      const table = document.getElementById("recentClicks");
+
+      table.innerHTML = "";
+
+      for (const item of data) {
+        table.innerHTML += `
+          <tr>
+            <td>${item.short_code}</td>
+            <td>${item.ip}</td>
+            <td>${item.clicked_at}</td>
+          </tr>
+        `;
+      }
+    }
+
+    async function loadAnalytics() {
+      await Promise.all([
+        loadSummary(),
+        loadTopUrls(),
+        loadRecent()
+      ]);
+    }
+
+    loadAnalytics();
+  </script>
+
+</body>
+</html>
