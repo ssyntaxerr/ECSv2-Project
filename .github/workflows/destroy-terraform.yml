@@ -10,7 +10,6 @@ permissions:
 env:
   AWS_REGION: eu-west-2
   TF_VAR_base_url: https://sufyanokomi.co.uk
-  TF_VAR_certificate_arn: ${{ vars.ACM_CERTIFICATE_ARN }}
   TF_VAR_db_password: ${{ secrets.DB_PASSWORD }}
 
 jobs:

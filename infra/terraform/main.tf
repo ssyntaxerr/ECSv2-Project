@@ -25,7 +25,7 @@ module "alb" {
   vpc_id            = module.vpc.vpc_id
   public_subnet_ids = module.vpc.public_subnet_ids
 
-  certificate_arn = var.certificate_arn
+  certificate_arn = data.aws_acm_certificate.main.arn
 }
 
 module "ecs_security" {

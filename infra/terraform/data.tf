@@ -19,3 +19,9 @@ data "cloudflare_zone" "main" {
     name = "sufyanokomi.co.uk"
   }
 }
+
+data "aws_acm_certificate" "main" {
+  domain      = "sufyanokomi.co.uk"
+  statuses    = ["ISSUED"]
+  most_recent = true
+}
