@@ -115,7 +115,7 @@ resource "aws_iam_role" "github_terraform" {
           }
 
           StringLike = {
-            "token.actions.githubusercontent.com:sub" = "repo:ssyntaxerr/ECSv2-Project:*"
+            "token.actions.githubusercontent.com:sub" = "repo:ssyntaxerr@*/ECSv2-Project@*:*"
           }
         }
       }
