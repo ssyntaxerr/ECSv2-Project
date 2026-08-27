@@ -1,5 +1,5 @@
 resource "aws_secretsmanager_secret" "postgres_secret" {
-  name = "${var.name_prefix}/postgres-secret"
+  name                    = "${var.name_prefix}/postgres-secret"
   recovery_window_in_days = 0
 
   tags = merge(var.common_tags, {
