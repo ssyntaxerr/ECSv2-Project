@@ -442,6 +442,28 @@ resource "aws_iam_role_policy" "github_terraform_infrastructure" {
   })
 }
 
+resource "aws_iam_role_policy" "github_ssm" {
+  name = "ECSv2-ssm-image-tag"
+  role = aws_iam_role.github_terraform.id
+
+  policy = jsonencode({
+    Version = "2012-10-17"
+
+    Statement = [
+      {
+        Effect = "Allow"
+
+        Action = [
+          "ssm:GetParameter",
+          "ssm:PutParameter"
+        ]
+
+        Resource = "arn:aws:ssm:eu-west-2:871916528489:parameter/ecs-v2/dev/current-image-tag"
+      }
+    ]
+  })
+}
+
 module "ecr" {
   source = "../terraform/modules/ecr"
 
