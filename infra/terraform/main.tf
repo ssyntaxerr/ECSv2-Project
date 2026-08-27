@@ -97,9 +97,9 @@ module "ecs" {
   private_subnet_ids    = module.vpc.private_subnet_ids
   ecs_security_group_id = module.ecs_security.ecs_security_group_id
 
-api_image       = "${data.aws_ecr_repository.api.repository_url}:v1"
-worker_image    = "${data.aws_ecr_repository.worker.repository_url}:v1"
-dashboard_image = "${data.aws_ecr_repository.dashboard.repository_url}:v1"
+  api_image       = "${data.aws_ecr_repository.api.repository_url}:v1"
+  worker_image    = "${data.aws_ecr_repository.worker.repository_url}:v1"
+  dashboard_image = "${data.aws_ecr_repository.dashboard.repository_url}:v1"
 
   execution_role_arn      = module.iam.ecs_execution_role_arn
   api_task_role_arn       = module.iam.api_task_role_arn
@@ -126,4 +126,15 @@ module "waf" {
   common_tags = local.common_tags
 
   alb_arn = module.alb.alb_arn
+}
+
+resource "cloudflare_record" "root" {
+  zone_id = data.cloudflare_zone.main.id
+
+  name    = "@"
+  type    = "CNAME"
+  content = module.alb.alb_dns_name
+
+  proxied = false
+  ttl     = 120
 }
