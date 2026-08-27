@@ -187,6 +187,7 @@ resource "aws_iam_role_policy" "github_ecr" {
           "ecr:BatchCheckLayerAvailability",
           "ecr:GetDownloadUrlForLayer",
           "ecr:BatchGetImage",
+          "ecr:DescribeImages",
           "ecr:InitiateLayerUpload",
           "ecr:UploadLayerPart",
           "ecr:CompleteLayerUpload",
@@ -285,6 +286,18 @@ resource "aws_iam_role_policy" "github_terraform_infrastructure" {
           "ec2:ModifyVpcEndpoint",
           "ec2:CreateTags",
           "ec2:DeleteTags"
+        ]
+
+        Resource = "*"
+      },
+
+      {
+        Sid    = "ACMRead"
+        Effect = "Allow"
+
+        Action = [
+          "acm:ListCertificates",
+          "acm:DescribeCertificate"
         ]
 
         Resource = "*"
