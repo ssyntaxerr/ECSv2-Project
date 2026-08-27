@@ -410,6 +410,7 @@ resource "aws_iam_role_policy" "github_terraform_infrastructure" {
           "iam:DetachRolePolicy",
           "iam:ListRolePolicies",
           "iam:ListAttachedRolePolicies",
+          "iam:ListInstanceProfilesForRole",
           "iam:PassRole"
         ]
 
