@@ -161,3 +161,44 @@ resource "aws_iam_role_policy" "github_terraform_state" {
     ]
   })
 }
+
+resource "aws_iam_role_policy" "github_ecr" {
+  name = "ECSv2-ecr-deployment"
+  role = aws_iam_role.github_terraform.id
+
+  policy = jsonencode({
+    Version = "2012-10-17"
+
+    Statement = [
+      {
+        Effect = "Allow"
+
+        Action = [
+          "ecr:GetAuthorizationToken"
+        ]
+
+        Resource = "*"
+      },
+
+      {
+        Effect = "Allow"
+
+        Action = [
+          "ecr:BatchCheckLayerAvailability",
+          "ecr:GetDownloadUrlForLayer",
+          "ecr:BatchGetImage",
+          "ecr:InitiateLayerUpload",
+          "ecr:UploadLayerPart",
+          "ecr:CompleteLayerUpload",
+          "ecr:PutImage"
+        ]
+
+        Resource = [
+          "arn:aws:ecr:eu-west-2:871916528489:repository/ecs-v2-dev-api-repo",
+          "arn:aws:ecr:eu-west-2:871916528489:repository/ecs-v2-dev-worker-repo",
+          "arn:aws:ecr:eu-west-2:871916528489:repository/ecs-v2-dev-dashboard-repo"
+        ]
+      }
+    ]
+  })
+}
