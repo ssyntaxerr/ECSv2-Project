@@ -492,6 +492,10 @@ resource "aws_ssm_parameter" "current_image_tag" {
     Environment = "dev"
     ManagedBy   = "Terraform"
   }
+
+  lifecycle {
+    ignore_changes = [value]
+  }
 }
 
 data "aws_caller_identity" "current" {}

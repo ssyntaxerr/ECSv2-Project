@@ -17,6 +17,7 @@ permissions:
 
 env:
   AWS_REGION: eu-west-2
+  AWS_PAGER: ""
 
   ECR_API_REPOSITORY: ecs-v2-dev-api-repo
   ECR_WORKER_REPOSITORY: ecs-v2-dev-worker-repo
