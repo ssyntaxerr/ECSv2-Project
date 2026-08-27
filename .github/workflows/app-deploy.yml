@@ -27,7 +27,6 @@ env:
   ECS_API_SERVICE: ecs-v2-dev-api-service
   ECS_WORKER_SERVICE: ecs-v2-dev-worker-service
   ECS_DASHBOARD_SERVICE: ecs-v2-dev-dashboard-service
-  TF_VAR_cloudflare_api_token: ${{ secrets.CLOUDFLARE_API_TOKEN }}
 
 jobs:
   deploy:
