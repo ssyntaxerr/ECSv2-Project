@@ -63,6 +63,7 @@ locals {
     "ecr.dkr",
     "logs",
     "sqs",
+    "secretsmanager",
   ]
 }
 

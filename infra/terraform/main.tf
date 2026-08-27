@@ -105,9 +105,9 @@ module "ecs" {
   private_subnet_ids    = module.vpc.private_subnet_ids
   ecs_security_group_id = module.ecs_security.ecs_security_group_id
 
-  api_image       = module.ecr.repo_urls["api-repo"]
-  worker_image    = module.ecr.repo_urls["worker-repo"]
-  dashboard_image = module.ecr.repo_urls["dashboard-repo"]
+  api_image       = "${module.ecr.repo_urls["api-repo"]}:v1"
+  worker_image    = "${module.ecr.repo_urls["worker-repo"]}:v1"
+  dashboard_image = "${module.ecr.repo_urls["dashboard-repo"]}:v1"
 
   execution_role_arn      = module.iam.ecs_execution_role_arn
   api_task_role_arn       = module.iam.api_task_role_arn
