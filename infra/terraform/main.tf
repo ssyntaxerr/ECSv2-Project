@@ -121,6 +121,8 @@ module "ecs" {
   redis_endpoint = module.redis.redis_endpoint
   redis_port     = module.redis.redis_port
 
+  base_url = var.base_url
+
   api_target_group_arn       = module.alb.api_target_group_arn
   dashboard_target_group_arn = module.alb.dashboard_target_group_arn
 }

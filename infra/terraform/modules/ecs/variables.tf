@@ -69,3 +69,7 @@ variable "dashboard_target_group_arn" {
 variable "ecs_security_group_id" {
   type = string
 }
+
+variable "base_url" {
+  type        = string
+}

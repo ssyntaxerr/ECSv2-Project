@@ -56,3 +56,8 @@ variable "public_subnet_cidrs" {
 variable "certificate_arn" {
   type = string
 }
+
+variable "base_url" {
+  type = string
+  default = "https://sufyanokomi.co.uk"
+}
