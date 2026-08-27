@@ -53,11 +53,11 @@ jobs:
           IMAGE_TAG: ${{ github.sha }}
         run: |
           docker build \
-            -t $ECR_REGISTRY/${{ env.ECR_API_REPOSITORY }}:$IMAGE_TAG \
+            -t "$ECR_REGISTRY/${{ env.ECR_API_REPOSITORY }}:$IMAGE_TAG" \
             ./app
 
           docker push \
-            $ECR_REGISTRY/${{ env.ECR_API_REPOSITORY }}:$IMAGE_TAG
+            "$ECR_REGISTRY/${{ env.ECR_API_REPOSITORY }}:$IMAGE_TAG"
 
       - name: Build and push Worker image
         env:
@@ -65,11 +65,11 @@ jobs:
           IMAGE_TAG: ${{ github.sha }}
         run: |
           docker build \
-            -t $ECR_REGISTRY/${{ env.ECR_WORKER_REPOSITORY }}:$IMAGE_TAG \
+            -t "$ECR_REGISTRY/${{ env.ECR_WORKER_REPOSITORY }}:$IMAGE_TAG" \
             ./services/worker
 
           docker push \
-            $ECR_REGISTRY/${{ env.ECR_WORKER_REPOSITORY }}:$IMAGE_TAG
+            "$ECR_REGISTRY/${{ env.ECR_WORKER_REPOSITORY }}:$IMAGE_TAG"
 
       - name: Build and push Dashboard image
         env:
@@ -77,11 +77,11 @@ jobs:
           IMAGE_TAG: ${{ github.sha }}
         run: |
           docker build \
-            -t $ECR_REGISTRY/${{ env.ECR_DASHBOARD_REPOSITORY }}:$IMAGE_TAG \
+            -t "$ECR_REGISTRY/${{ env.ECR_DASHBOARD_REPOSITORY }}:$IMAGE_TAG" \
             ./services/dashboard
 
           docker push \
-            $ECR_REGISTRY/${{ env.ECR_DASHBOARD_REPOSITORY }}:$IMAGE_TAG
+            "$ECR_REGISTRY/${{ env.ECR_DASHBOARD_REPOSITORY }}:$IMAGE_TAG"
 
       - name: Deploy API
         env:
@@ -111,13 +111,13 @@ jobs:
             --output text)
 
           aws ecs update-service \
-            --cluster ${{ env.ECS_CLUSTER }} \
-            --service ${{ env.ECS_API_SERVICE }} \
+            --cluster "${{ env.ECS_CLUSTER }}" \
+            --service "${{ env.ECS_API_SERVICE }}" \
             --task-definition "$NEW_TASK_DEFINITION_ARN"
 
           aws ecs wait services-stable \
-            --cluster ${{ env.ECS_CLUSTER }} \
-            --services ${{ env.ECS_API_SERVICE }}
+            --cluster "${{ env.ECS_CLUSTER }}" \
+            --services "${{ env.ECS_API_SERVICE }}"
 
       - name: Deploy Worker
         env:
@@ -147,13 +147,13 @@ jobs:
             --output text)
 
           aws ecs update-service \
-            --cluster ${{ env.ECS_CLUSTER }} \
-            --service ${{ env.ECS_WORKER_SERVICE }} \
+            --cluster "${{ env.ECS_CLUSTER }}" \
+            --service "${{ env.ECS_WORKER_SERVICE }}" \
             --task-definition "$NEW_TASK_DEFINITION_ARN"
 
           aws ecs wait services-stable \
-            --cluster ${{ env.ECS_CLUSTER }} \
-            --services ${{ env.ECS_WORKER_SERVICE }}
+            --cluster "${{ env.ECS_CLUSTER }}" \
+            --services "${{ env.ECS_WORKER_SERVICE }}"
 
       - name: Deploy Dashboard
         env:
@@ -183,10 +183,19 @@ jobs:
             --output text)
 
           aws ecs update-service \
-            --cluster ${{ env.ECS_CLUSTER }} \
-            --service ${{ env.ECS_DASHBOARD_SERVICE }} \
+            --cluster "${{ env.ECS_CLUSTER }}" \
+            --service "${{ env.ECS_DASHBOARD_SERVICE }}" \
             --task-definition "$NEW_TASK_DEFINITION_ARN"
 
           aws ecs wait services-stable \
-            --cluster ${{ env.ECS_CLUSTER }} \
-            --services ${{ env.ECS_DASHBOARD_SERVICE }}
+            --cluster "${{ env.ECS_CLUSTER }}" \
+            --services "${{ env.ECS_DASHBOARD_SERVICE }}"
+
+      - name: Update current image tag
+        run: |
+          aws ssm put-parameter \
+            --name "/ecs-v2/dev/current-image-tag" \
+            --value "${{ github.sha }}" \
+            --type "String" \
+            --overwrite \
+            --region "${{ env.AWS_REGION }}"
