@@ -15,5 +15,7 @@ data "aws_ssm_parameter" "current_image_tag" {
 }
 
 data "cloudflare_zone" "main" {
-  name = "sufyanokomi.co.uk"
+  filter = {
+    name = "sufyanokomi.co.uk"
+  }
 }

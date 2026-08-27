@@ -128,7 +128,7 @@ module "waf" {
   alb_arn = module.alb.alb_arn
 }
 
-resource "cloudflare_record" "root" {
+resource "cloudflare_dns_record" "root" {
   zone_id = data.cloudflare_zone.main.id
 
   name    = "@"
