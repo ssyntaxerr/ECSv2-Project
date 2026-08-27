@@ -459,3 +459,15 @@ module "ecr" {
     "dashboard-repo"
   ]
 }
+
+resource "aws_ssm_parameter" "current_image_tag" {
+  name  = "/ecs-v2/dev/current-image-tag"
+  type  = "String"
+  value = "v1"
+
+  tags = {
+    Project     = "ecs-v2"
+    Environment = "dev"
+    ManagedBy   = "Terraform"
+  }
+}

@@ -9,3 +9,7 @@ data "aws_ecr_repository" "worker" {
 data "aws_ecr_repository" "dashboard" {
   name = "ecs-v2-dev-dashboard-repo"
 }
+
+data "aws_ssm_parameter" "current_image_tag" {
+  name = "/ecs-v2/dev/current-image-tag"
+}
