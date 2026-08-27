@@ -13,3 +13,7 @@ data "aws_ecr_repository" "dashboard" {
 data "aws_ssm_parameter" "current_image_tag" {
   name = "/ecs-v2/dev/current-image-tag"
 }
+
+data "cloudflare_zone" "main" {
+  name = "sufyanokomi.co.uk"
+}

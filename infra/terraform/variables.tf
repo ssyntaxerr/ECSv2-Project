@@ -61,3 +61,8 @@ variable "base_url" {
   type    = string
   default = "https://sufyanokomi.co.uk"
 }
+
+variable "cloudflare_api_token" {
+  type        = string
+  sensitive   = true
+}
