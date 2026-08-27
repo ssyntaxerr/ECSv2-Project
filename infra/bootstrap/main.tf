@@ -202,3 +202,44 @@ resource "aws_iam_role_policy" "github_ecr" {
     ]
   })
 }
+
+resource "aws_iam_role_policy" "github_ecs" {
+  name = "ECSv2-ecs-deployment"
+  role = aws_iam_role.github_terraform.id
+
+  policy = jsonencode({
+    Version = "2012-10-17"
+
+    Statement = [
+      {
+        Effect = "Allow"
+
+        Action = [
+          "ecs:DescribeServices",
+          "ecs:DescribeTaskDefinition",
+          "ecs:RegisterTaskDefinition",
+          "ecs:UpdateService",
+          "ecs:ListTasks",
+          "ecs:DescribeTasks"
+        ]
+
+        Resource = "*"
+      },
+
+      {
+        Effect = "Allow"
+
+        Action = [
+          "iam:PassRole"
+        ]
+
+        Resource = [
+          "arn:aws:iam::871916528489:role/ecs-v2-dev-ecs-execution-role",
+          "arn:aws:iam::871916528489:role/ecs-v2-dev-api-task-role",
+          "arn:aws:iam::871916528489:role/ecs-v2-dev-worker-task-role",
+          "arn:aws:iam::871916528489:role/ecs-v2-dev-dashboard-task-role"
+        ]
+      }
+    ]
+  })
+}
