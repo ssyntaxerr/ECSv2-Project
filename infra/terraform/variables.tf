@@ -63,6 +63,6 @@ variable "base_url" {
 }
 
 variable "cloudflare_api_token" {
-  type        = string
-  sensitive   = true
+  type      = string
+  sensitive = true
 }

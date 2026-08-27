@@ -2,7 +2,7 @@ resource "aws_ecr_repository" "ecsv2-repos" {
   for_each = toset(var.repositories)
 
   name                 = "${var.name_prefix}-${each.value}"
-  force_delete = true
+  force_delete         = true
   image_tag_mutability = "IMMUTABLE"
 
   image_scanning_configuration {
