@@ -298,7 +298,8 @@ resource "aws_iam_role_policy" "github_terraform_infrastructure" {
         Action = [
           "acm:ListCertificates",
           "acm:DescribeCertificate",
-          "acm:GetCertificate"
+          "acm:GetCertificate",
+          "acm:ListTagsForCertificate"
         ]
 
         Resource = "*"
