@@ -243,3 +243,200 @@ resource "aws_iam_role_policy" "github_ecs" {
     ]
   })
 }
+
+resource "aws_iam_role_policy" "github_terraform_infrastructure" {
+  name = "ECSv2-terraform-infrastructure"
+  role = aws_iam_role.github_terraform.id
+
+  policy = jsonencode({
+    Version = "2012-10-17"
+
+    Statement = [
+      {
+        Sid    = "EC2Networking"
+        Effect = "Allow"
+
+        Action = [
+          "ec2:CreateVpc",
+          "ec2:DeleteVpc",
+          "ec2:Describe*",
+          "ec2:ModifyVpcAttribute",
+          "ec2:CreateSubnet",
+          "ec2:DeleteSubnet",
+          "ec2:ModifySubnetAttribute",
+          "ec2:CreateInternetGateway",
+          "ec2:DeleteInternetGateway",
+          "ec2:AttachInternetGateway",
+          "ec2:DetachInternetGateway",
+          "ec2:CreateRouteTable",
+          "ec2:DeleteRouteTable",
+          "ec2:CreateRoute",
+          "ec2:DeleteRoute",
+          "ec2:AssociateRouteTable",
+          "ec2:DisassociateRouteTable",
+          "ec2:CreateSecurityGroup",
+          "ec2:DeleteSecurityGroup",
+          "ec2:AuthorizeSecurityGroupIngress",
+          "ec2:AuthorizeSecurityGroupEgress",
+          "ec2:RevokeSecurityGroupIngress",
+          "ec2:RevokeSecurityGroupEgress",
+          "ec2:CreateVpcEndpoint",
+          "ec2:DeleteVpcEndpoints",
+          "ec2:ModifyVpcEndpoint",
+          "ec2:CreateTags",
+          "ec2:DeleteTags"
+        ]
+
+        Resource = "*"
+      },
+
+      {
+        Sid    = "ECS"
+        Effect = "Allow"
+
+        Action = [
+          "ecs:CreateCluster",
+          "ecs:DeleteCluster",
+          "ecs:DescribeClusters",
+          "ecs:CreateService",
+          "ecs:UpdateService",
+          "ecs:DeleteService",
+          "ecs:DescribeServices",
+          "ecs:RegisterTaskDefinition",
+          "ecs:DeregisterTaskDefinition",
+          "ecs:DescribeTaskDefinition",
+          "ecs:ListTaskDefinitions",
+          "ecs:ListTasks",
+          "ecs:DescribeTasks",
+          "ecs:TagResource",
+          "ecs:UntagResource"
+        ]
+
+        Resource = "*"
+      },
+
+      {
+        Sid    = "ElasticLoadBalancing"
+        Effect = "Allow"
+
+        Action = [
+          "elasticloadbalancing:*"
+        ]
+
+        Resource = "*"
+      },
+
+      {
+        Sid    = "RDS"
+        Effect = "Allow"
+
+        Action = [
+          "rds:*"
+        ]
+
+        Resource = "*"
+      },
+
+      {
+        Sid    = "ElastiCache"
+        Effect = "Allow"
+
+        Action = [
+          "elasticache:*"
+        ]
+
+        Resource = "*"
+      },
+
+      {
+        Sid    = "SQS"
+        Effect = "Allow"
+
+        Action = [
+          "sqs:*"
+        ]
+
+        Resource = "*"
+      },
+
+      {
+        Sid    = "SecretsManager"
+        Effect = "Allow"
+
+        Action = [
+          "secretsmanager:*"
+        ]
+
+        Resource = "*"
+      },
+
+      {
+        Sid    = "CloudWatchLogs"
+        Effect = "Allow"
+
+        Action = [
+          "logs:*"
+        ]
+
+        Resource = "*"
+      },
+
+      {
+        Sid    = "WAF"
+        Effect = "Allow"
+
+        Action = [
+          "wafv2:*"
+        ]
+
+        Resource = "*"
+      },
+
+      {
+        Sid    = "IAMManagement"
+        Effect = "Allow"
+
+        Action = [
+          "iam:CreateRole",
+          "iam:DeleteRole",
+          "iam:GetRole",
+          "iam:TagRole",
+          "iam:UntagRole",
+          "iam:UpdateAssumeRolePolicy",
+          "iam:PutRolePolicy",
+          "iam:GetRolePolicy",
+          "iam:DeleteRolePolicy",
+          "iam:AttachRolePolicy",
+          "iam:DetachRolePolicy",
+          "iam:ListRolePolicies",
+          "iam:ListAttachedRolePolicies",
+          "iam:PassRole"
+        ]
+
+        Resource = [
+          "arn:aws:iam::871916528489:role/ecs-v2-dev-*"
+        ]
+      },
+
+      {
+        Sid    = "ECRManagement"
+        Effect = "Allow"
+
+        Action = [
+          "ecr:CreateRepository",
+          "ecr:DeleteRepository",
+          "ecr:DescribeRepositories",
+          "ecr:ListTagsForResource",
+          "ecr:TagResource",
+          "ecr:UntagResource",
+          "ecr:GetRepositoryPolicy",
+          "ecr:PutLifecyclePolicy",
+          "ecr:GetLifecyclePolicy",
+          "ecr:DeleteLifecyclePolicy"
+        ]
+
+        Resource = "*"
+      }
+    ]
+  })
+}
