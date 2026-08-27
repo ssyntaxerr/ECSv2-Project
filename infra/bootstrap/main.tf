@@ -441,3 +441,21 @@ resource "aws_iam_role_policy" "github_terraform_infrastructure" {
     ]
   })
 }
+
+module "ecr" {
+  source = "../terraform/modules/ecr"
+
+  name_prefix = "ecs-v2-dev"
+
+  common_tags = {
+    Project     = "ecs-v2"
+    Environment = "dev"
+    ManagedBy   = "Terraform"
+  }
+
+  repositories = [
+    "api-repo",
+    "worker-repo",
+    "dashboard-repo"
+  ]
+}
