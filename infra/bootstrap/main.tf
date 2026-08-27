@@ -194,9 +194,9 @@ resource "aws_iam_role_policy" "github_ecr" {
         ]
 
         Resource = [
-          "arn:aws:ecr:eu-west-2:871916528489:repository/ecs-v2-dev-api-repo",
-          "arn:aws:ecr:eu-west-2:871916528489:repository/ecs-v2-dev-worker-repo",
-          "arn:aws:ecr:eu-west-2:871916528489:repository/ecs-v2-dev-dashboard-repo"
+          "arn:aws:ecr:eu-west-2:${data.aws_caller_identity.current.account_id}:repository/ecs-v2-dev-api-repo",
+          "arn:aws:ecr:eu-west-2:${data.aws_caller_identity.current.account_id}:repository/ecs-v2-dev-worker-repo",
+          "arn:aws:ecr:eu-west-2:${data.aws_caller_identity.current.account_id}:repository/ecs-v2-dev-dashboard-repo"
         ]
       }
     ]
@@ -234,10 +234,10 @@ resource "aws_iam_role_policy" "github_ecs" {
         ]
 
         Resource = [
-          "arn:aws:iam::871916528489:role/ecs-v2-dev-ecs-execution-role",
-          "arn:aws:iam::871916528489:role/ecs-v2-dev-api-task-role",
-          "arn:aws:iam::871916528489:role/ecs-v2-dev-worker-task-role",
-          "arn:aws:iam::871916528489:role/ecs-v2-dev-dashboard-task-role"
+          "arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/ecs-v2-dev-ecs-execution-role",
+          "arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/ecs-v2-dev-api-task-role",
+          "arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/ecs-v2-dev-worker-task-role",
+          "arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/ecs-v2-dev-dashboard-task-role"
         ]
       }
     ]
@@ -415,7 +415,7 @@ resource "aws_iam_role_policy" "github_terraform_infrastructure" {
         ]
 
         Resource = [
-          "arn:aws:iam::871916528489:role/ecs-v2-dev-*"
+          "arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/ecs-v2-dev-*"
         ]
       },
 
@@ -458,7 +458,7 @@ resource "aws_iam_role_policy" "github_ssm" {
           "ssm:PutParameter"
         ]
 
-        Resource = "arn:aws:ssm:eu-west-2:871916528489:parameter/ecs-v2/dev/current-image-tag"
+        Resource = "arn:aws:ssm:eu-west-2:${data.aws_caller_identity.current.account_id}:parameter/ecs-v2/dev/current-image-tag"
       }
     ]
   })
