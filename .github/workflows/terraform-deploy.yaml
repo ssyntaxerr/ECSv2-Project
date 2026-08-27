@@ -13,6 +13,10 @@ env:
   TF_VAR_certificate_arn: ${{ vars.ACM_CERTIFICATE_ARN }}
   TF_VAR_db_password: ${{ secrets.DB_PASSWORD }}
 
+  ECR_API_REPOSITORY: ecs-v2-dev-api-repo
+  ECR_WORKER_REPOSITORY: ecs-v2-dev-worker-repo
+  ECR_DASHBOARD_REPOSITORY: ecs-v2-dev-dashboard-repo
+
 jobs:
   terraform:
     name: Deploy Infrastructure
@@ -43,6 +47,98 @@ jobs:
 
       - name: Terraform Validate
         run: terraform validate
+
+      - name: Get current image tag
+        id: image-tag
+        run: |
+          IMAGE_TAG=$(aws ssm get-parameter \
+            --name "/ecs-v2/dev/current-image-tag" \
+            --query "Parameter.Value" \
+            --output text \
+            --region $AWS_REGION)
+
+          echo "IMAGE_TAG=$IMAGE_TAG" >> "$GITHUB_ENV"
+
+      - name: Login to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v2
+
+      - name: Check whether images exist
+        id: image-check
+        env:
+          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+        working-directory: .
+        run: |
+          API_EXISTS=false
+          WORKER_EXISTS=false
+          DASHBOARD_EXISTS=false
+
+          if aws ecr describe-images \
+            --repository-name "$ECR_API_REPOSITORY" \
+            --image-ids imageTag="$IMAGE_TAG" \
+            --region "$AWS_REGION" \
+            >/dev/null 2>&1; then
+            API_EXISTS=true
+          fi
+
+          if aws ecr describe-images \
+            --repository-name "$ECR_WORKER_REPOSITORY" \
+            --image-ids imageTag="$IMAGE_TAG" \
+            --region "$AWS_REGION" \
+            >/dev/null 2>&1; then
+            WORKER_EXISTS=true
+          fi
+
+          if aws ecr describe-images \
+            --repository-name "$ECR_DASHBOARD_REPOSITORY" \
+            --image-ids imageTag="$IMAGE_TAG" \
+            --region "$AWS_REGION" \
+            >/dev/null 2>&1; then
+            DASHBOARD_EXISTS=true
+          fi
+
+          echo "api_exists=$API_EXISTS" >> "$GITHUB_OUTPUT"
+          echo "worker_exists=$WORKER_EXISTS" >> "$GITHUB_OUTPUT"
+          echo "dashboard_exists=$DASHBOARD_EXISTS" >> "$GITHUB_OUTPUT"
+
+      - name: Build and push API image
+        if: steps.image-check.outputs.api_exists != 'true'
+        env:
+          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+        working-directory: .
+        run: |
+          docker build \
+            -t "$ECR_REGISTRY/$ECR_API_REPOSITORY:$IMAGE_TAG" \
+            ./app
+
+          docker push \
+            "$ECR_REGISTRY/$ECR_API_REPOSITORY:$IMAGE_TAG"
+
+      - name: Build and push Worker image
+        if: steps.image-check.outputs.worker_exists != 'true'
+        env:
+          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+        working-directory: .
+        run: |
+          docker build \
+            -t "$ECR_REGISTRY/$ECR_WORKER_REPOSITORY:$IMAGE_TAG" \
+            ./services/worker
+
+          docker push \
+            "$ECR_REGISTRY/$ECR_WORKER_REPOSITORY:$IMAGE_TAG"
+
+      - name: Build and push Dashboard image
+        if: steps.image-check.outputs.dashboard_exists != 'true'
+        env:
+          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+        working-directory: .
+        run: |
+          docker build \
+            -t "$ECR_REGISTRY/$ECR_DASHBOARD_REPOSITORY:$IMAGE_TAG" \
+            ./services/dashboard
+
+          docker push \
+            "$ECR_REGISTRY/$ECR_DASHBOARD_REPOSITORY:$IMAGE_TAG"
 
       - name: Terraform Plan
         run: terraform plan -out=tfplan
