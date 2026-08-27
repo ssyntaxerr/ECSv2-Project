@@ -58,6 +58,6 @@ variable "certificate_arn" {
 }
 
 variable "base_url" {
-  type = string
+  type    = string
   default = "https://sufyanokomi.co.uk"
 }

@@ -54,7 +54,7 @@ resource "aws_ecs_task_definition" "api" {
           value = "8080"
         },
         {
-          name = "BASE_URL"
+          name  = "BASE_URL"
           value = var.base_url
         }
       ]

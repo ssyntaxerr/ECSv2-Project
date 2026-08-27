@@ -71,5 +71,5 @@ variable "ecs_security_group_id" {
 }
 
 variable "base_url" {
-  type        = string
+  type = string
 }
