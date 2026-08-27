@@ -25,3 +25,5 @@ data "aws_acm_certificate" "main" {
   statuses    = ["ISSUED"]
   most_recent = true
 }
+
+data "aws_caller_identity" "current" {}

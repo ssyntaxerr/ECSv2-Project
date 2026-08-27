@@ -493,3 +493,5 @@ resource "aws_ssm_parameter" "current_image_tag" {
     ManagedBy   = "Terraform"
   }
 }
+
+data "aws_caller_identity" "current" {}
