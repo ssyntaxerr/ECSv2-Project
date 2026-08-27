@@ -1,0 +1,192 @@
+name: App Deploy
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - "app/**"
+      - "services/worker/**"
+      - "services/dashboard/**"
+
+  workflow_dispatch:
+
+permissions:
+  id-token: write
+  contents: read
+
+env:
+  AWS_REGION: eu-west-2
+
+  ECR_API_REPOSITORY: ecs-v2-dev-api-repo
+  ECR_WORKER_REPOSITORY: ecs-v2-dev-worker-repo
+  ECR_DASHBOARD_REPOSITORY: ecs-v2-dev-dashboard-repo
+
+  ECS_CLUSTER: ecs-v2-dev-cluster
+
+  ECS_API_SERVICE: ecs-v2-dev-api-service
+  ECS_WORKER_SERVICE: ecs-v2-dev-worker-service
+  ECS_DASHBOARD_SERVICE: ecs-v2-dev-dashboard-service
+
+jobs:
+  deploy:
+    name: Build and Deploy
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: arn:aws:iam::871916528489:role/ECSv2-github-actions-role
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Login to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v2
+
+      - name: Build and push API image
+        env:
+          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+          IMAGE_TAG: ${{ github.sha }}
+        run: |
+          docker build \
+            -t $ECR_REGISTRY/${{ env.ECR_API_REPOSITORY }}:$IMAGE_TAG \
+            ./app
+
+          docker push \
+            $ECR_REGISTRY/${{ env.ECR_API_REPOSITORY }}:$IMAGE_TAG
+
+      - name: Build and push Worker image
+        env:
+          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+          IMAGE_TAG: ${{ github.sha }}
+        run: |
+          docker build \
+            -t $ECR_REGISTRY/${{ env.ECR_WORKER_REPOSITORY }}:$IMAGE_TAG \
+            ./services/worker
+
+          docker push \
+            $ECR_REGISTRY/${{ env.ECR_WORKER_REPOSITORY }}:$IMAGE_TAG
+
+      - name: Build and push Dashboard image
+        env:
+          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+          IMAGE_TAG: ${{ github.sha }}
+        run: |
+          docker build \
+            -t $ECR_REGISTRY/${{ env.ECR_DASHBOARD_REPOSITORY }}:$IMAGE_TAG \
+            ./services/dashboard
+
+          docker push \
+            $ECR_REGISTRY/${{ env.ECR_DASHBOARD_REPOSITORY }}:$IMAGE_TAG
+
+      - name: Deploy API
+        env:
+          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+          IMAGE_TAG: ${{ github.sha }}
+        run: |
+          TASK_DEFINITION=$(aws ecs describe-task-definition \
+            --task-definition ecs-v2-dev-api \
+            --query taskDefinition)
+
+          NEW_TASK_DEFINITION=$(echo "$TASK_DEFINITION" | jq \
+            --arg IMAGE "$ECR_REGISTRY/${{ env.ECR_API_REPOSITORY }}:$IMAGE_TAG" \
+            '.containerDefinitions[0].image = $IMAGE |
+             del(
+               .taskDefinitionArn,
+               .revision,
+               .status,
+               .requiresAttributes,
+               .compatibilities,
+               .registeredAt,
+               .registeredBy
+             )')
+
+          NEW_TASK_DEFINITION_ARN=$(aws ecs register-task-definition \
+            --cli-input-json "$NEW_TASK_DEFINITION" \
+            --query 'taskDefinition.taskDefinitionArn' \
+            --output text)
+
+          aws ecs update-service \
+            --cluster ${{ env.ECS_CLUSTER }} \
+            --service ${{ env.ECS_API_SERVICE }} \
+            --task-definition "$NEW_TASK_DEFINITION_ARN"
+
+          aws ecs wait services-stable \
+            --cluster ${{ env.ECS_CLUSTER }} \
+            --services ${{ env.ECS_API_SERVICE }}
+
+      - name: Deploy Worker
+        env:
+          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+          IMAGE_TAG: ${{ github.sha }}
+        run: |
+          TASK_DEFINITION=$(aws ecs describe-task-definition \
+            --task-definition ecs-v2-dev-worker \
+            --query taskDefinition)
+
+          NEW_TASK_DEFINITION=$(echo "$TASK_DEFINITION" | jq \
+            --arg IMAGE "$ECR_REGISTRY/${{ env.ECR_WORKER_REPOSITORY }}:$IMAGE_TAG" \
+            '.containerDefinitions[0].image = $IMAGE |
+             del(
+               .taskDefinitionArn,
+               .revision,
+               .status,
+               .requiresAttributes,
+               .compatibilities,
+               .registeredAt,
+               .registeredBy
+             )')
+
+          NEW_TASK_DEFINITION_ARN=$(aws ecs register-task-definition \
+            --cli-input-json "$NEW_TASK_DEFINITION" \
+            --query 'taskDefinition.taskDefinitionArn' \
+            --output text)
+
+          aws ecs update-service \
+            --cluster ${{ env.ECS_CLUSTER }} \
+            --service ${{ env.ECS_WORKER_SERVICE }} \
+            --task-definition "$NEW_TASK_DEFINITION_ARN"
+
+          aws ecs wait services-stable \
+            --cluster ${{ env.ECS_CLUSTER }} \
+            --services ${{ env.ECS_WORKER_SERVICE }}
+
+      - name: Deploy Dashboard
+        env:
+          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+          IMAGE_TAG: ${{ github.sha }}
+        run: |
+          TASK_DEFINITION=$(aws ecs describe-task-definition \
+            --task-definition ecs-v2-dev-dashboard \
+            --query taskDefinition)
+
+          NEW_TASK_DEFINITION=$(echo "$TASK_DEFINITION" | jq \
+            --arg IMAGE "$ECR_REGISTRY/${{ env.ECR_DASHBOARD_REPOSITORY }}:$IMAGE_TAG" \
+            '.containerDefinitions[0].image = $IMAGE |
+             del(
+               .taskDefinitionArn,
+               .revision,
+               .status,
+               .requiresAttributes,
+               .compatibilities,
+               .registeredAt,
+               .registeredBy
+             )')
+
+          NEW_TASK_DEFINITION_ARN=$(aws ecs register-task-definition \
+            --cli-input-json "$NEW_TASK_DEFINITION" \
+            --query 'taskDefinition.taskDefinitionArn' \
+            --output text)
+
+          aws ecs update-service \
+            --cluster ${{ env.ECS_CLUSTER }} \
+            --service ${{ env.ECS_DASHBOARD_SERVICE }} \
+            --task-definition "$NEW_TASK_DEFINITION_ARN"
+
+          aws ecs wait services-stable \
+            --cluster ${{ env.ECS_CLUSTER }} \
+            --services ${{ env.ECS_DASHBOARD_SERVICE }}
