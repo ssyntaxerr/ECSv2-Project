@@ -65,41 +65,46 @@ jobs:
 
       - name: Check whether images exist
         id: image-check
-        env:
-          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
         working-directory: .
         run: |
-          API_EXISTS=false
-          WORKER_EXISTS=false
-          DASHBOARD_EXISTS=false
-
-          if aws ecr describe-images \
+          API_IMAGE_COUNT=$(aws ecr batch-get-image \
             --repository-name "$ECR_API_REPOSITORY" \
             --image-ids imageTag="$IMAGE_TAG" \
             --region "$AWS_REGION" \
-            >/dev/null 2>&1; then
-            API_EXISTS=true
-          fi
+            --query 'length(images)' \
+            --output text)
 
-          if aws ecr describe-images \
+          WORKER_IMAGE_COUNT=$(aws ecr batch-get-image \
             --repository-name "$ECR_WORKER_REPOSITORY" \
             --image-ids imageTag="$IMAGE_TAG" \
             --region "$AWS_REGION" \
-            >/dev/null 2>&1; then
-            WORKER_EXISTS=true
-          fi
+            --query 'length(images)' \
+            --output text)
 
-          if aws ecr describe-images \
+          DASHBOARD_IMAGE_COUNT=$(aws ecr batch-get-image \
             --repository-name "$ECR_DASHBOARD_REPOSITORY" \
             --image-ids imageTag="$IMAGE_TAG" \
             --region "$AWS_REGION" \
-            >/dev/null 2>&1; then
-            DASHBOARD_EXISTS=true
+            --query 'length(images)' \
+            --output text)
+
+          if [ "$API_IMAGE_COUNT" -gt 0 ]; then
+            echo "api_exists=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "api_exists=false" >> "$GITHUB_OUTPUT"
           fi
 
-          echo "api_exists=$API_EXISTS" >> "$GITHUB_OUTPUT"
-          echo "worker_exists=$WORKER_EXISTS" >> "$GITHUB_OUTPUT"
-          echo "dashboard_exists=$DASHBOARD_EXISTS" >> "$GITHUB_OUTPUT"
+          if [ "$WORKER_IMAGE_COUNT" -gt 0 ]; then
+            echo "worker_exists=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "worker_exists=false" >> "$GITHUB_OUTPUT"
+          fi
+
+          if [ "$DASHBOARD_IMAGE_COUNT" -gt 0 ]; then
+            echo "dashboard_exists=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "dashboard_exists=false" >> "$GITHUB_OUTPUT"
+          fi
 
       - name: Build and push API image
         if: steps.image-check.outputs.api_exists != 'true'
